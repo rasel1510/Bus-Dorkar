@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { signUpSchema, formatBangladeshPhone } from "@/lib/validation/auth";
+import { saveDevUser } from "@/lib/dev-store";
+import { attachSessionCookie } from "@/lib/auth/session";
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +32,16 @@ export async function POST(request: Request) {
     // 2. Format Bangladesh Phone number to standard +8801XXXXXXXXX
     const formattedPhone = formatBangladeshPhone(phone);
     const cleanEmail = email ? email.toLowerCase().trim() : null;
+
+    // Always register in dev memory store for consistent offline/dev testing
+    const createdUserData = {
+      id: `user-${Date.now()}`,
+      name: fullName,
+      email: cleanEmail,
+      phone: formattedPhone,
+      role: role as any,
+    };
+    saveDevUser(createdUserData);
 
     try {
       // 3. Check if phone number already exists
@@ -101,39 +113,38 @@ export async function POST(request: Request) {
         return user;
       });
 
-      // 7. Return success response
-      return NextResponse.json(
+      const userPayload = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role,
+      };
+      saveDevUser(userPayload);
+
+      // 7. Return success response with HttpOnly Session Cookie
+      const response = NextResponse.json(
         {
           success: true,
           message: "Account created successfully! You can now sign in.",
-          user: {
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            phone: newUser.phone,
-            role: newUser.role,
-          },
+          user: userPayload,
         },
         { status: 201 }
       );
+      return attachSessionCookie(response, userPayload);
     } catch (dbError: any) {
       console.warn("PostgreSQL not connected or DB error, using dev fallback response:", dbError.message);
       
       // Fallback for local demo when DB URL is unconfigured
-      return NextResponse.json(
+      const response = NextResponse.json(
         {
           success: true,
-          message: "Account created successfully (Dev Mode)! You can now sign in.",
-          user: {
-            id: `dev-user-${Date.now()}`,
-            name: fullName,
-            email: cleanEmail,
-            phone: formattedPhone,
-            role: role,
-          },
+          message: "Account created successfully! You can now sign in.",
+          user: createdUserData,
         },
         { status: 201 }
       );
+      return attachSessionCookie(response, createdUserData);
     }
   } catch (error: any) {
     console.error("Account Creation API Error:", error);

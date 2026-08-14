@@ -47,11 +47,32 @@ function deleteCookie(name: string) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserSession | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadSession = useCallback(() => {
+  const [user, setUser] = useState<UserSession | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
+      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadSession = useCallback(async () => {
+    try {
+      // 1. Try server-side HttpOnly session check first ($O(1)$ response)
+      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Fallback to client storage
       let storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
       if (!storedUser) {
         const cookieVal = getCookie(AUTH_STORAGE_KEY);
@@ -65,7 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       }
     } catch (e) {
-      console.error("Failed to load user session:", e);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -97,14 +117,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       deleteCookie(AUTH_STORAGE_KEY);
       window.dispatchEvent(new Event("auth-change"));
+      await fetch("/api/auth/logout", { method: "POST" });
     } catch (e) {
-      console.error("Failed to clear user session:", e);
+      console.error("Failed to clear server session:", e);
     }
     window.location.href = "/login";
   };
