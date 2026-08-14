@@ -1,0 +1,403 @@
+// Bus Dorkar — Prisma Database Schema
+// Bangladesh Inter-District Bus Transportation Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== ENUMS =====
+
+enum Role {
+  PASSENGER
+  BUS_OPERATOR
+  COUNTER_STAFF
+  DRIVER
+  ADMIN
+}
+
+enum BusType {
+  AC_EXECUTIVE
+  AC_BUSINESS
+  NON_AC_DELUXE
+  SLEEPER_COACH
+  DOUBLE_DECKER
+}
+
+enum BusStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+  RETIRED
+}
+
+enum BookingStatus {
+  PENDING
+  PAYMENT_PENDING
+  CONFIRMED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  EXPIRED
+}
+
+enum PaymentStatus {
+  INITIATED
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BKASH
+  NAGAD
+  SSLCOMMERZ
+  COUNTER_CASH
+  CARD
+}
+
+enum OperatorStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// ===== CORE MODELS =====
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String?   @unique
+  phone         String    @unique
+  passwordHash  String
+  role          Role      @default(PASSENGER)
+  avatar        String?
+  emailVerified DateTime?
+  phoneVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  passengerProfile PassengerProfile?
+  operatorProfile  OperatorProfile?
+  staffProfile     StaffProfile?
+  driverProfile    DriverProfile?
+  bookings         Booking[]
+  reviews          Review[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+
+  @@index([phone])
+  @@index([email])
+}
+
+model PassengerProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emergencyContact String?
+  gender           String?
+  dateOfBirth      DateTime?
+  address          String?
+  createdAt        DateTime @default(now())
+}
+
+model OperatorProfile {
+  id             String         @id @default(cuid())
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName    String
+  companyNameBn  String?
+  tradeLicenseNo String
+  logo           String?
+  status         OperatorStatus @default(PENDING)
+  rating         Float          @default(5.0)
+  totalReviews   Int            @default(0)
+  createdAt      DateTime       @default(now())
+
+  // Operator owned resources
+  buses        Bus[]
+  routes       Route[]
+  schedules    Schedule[]
+  counters     Counter[]
+  staff        StaffProfile[]
+  drivers      DriverProfile[]
+  cancellationPolicy CancellationPolicy?
+
+  @@index([status])
+}
+
+model StaffProfile {
+  id         String          @id @default(cuid())
+  userId     String          @unique
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operatorId String
+  operator   OperatorProfile @relation(fields: [operatorId], references: [id])
+  counterId  String?
+  counter    Counter?        @relation(fields: [counterId], references: [id])
+}
+
+model DriverProfile {
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operatorId    String
+  operator      OperatorProfile @relation(fields: [operatorId], references: [id])
+  licenseNumber String
+  licenseExpiry DateTime
+  trips         Trip[]
+}
+
+model Division {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  nameBn    String
+  districts District[]
+}
+
+model District {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  nameBn     String
+  divisionId String
+  division   Division   @relation(fields: [divisionId], references: [id])
+  lat        Float
+  lng        Float
+  terminals  Terminal[]
+
+  originRoutes      Route[] @relation("OriginDistrict")
+  destinationRoutes Route[] @relation("DestinationDistrict")
+}
+
+model Terminal {
+  id         String    @id @default(cuid())
+  name       String
+  nameBn     String?
+  districtId String
+  district   District  @relation(fields: [districtId], references: [id])
+  lat        Float
+  lng        Float
+  counters   Counter[]
+}
+
+model Counter {
+  id         String          @id @default(cuid())
+  name       String
+  operatorId String
+  operator   OperatorProfile @relation(fields: [operatorId], references: [id])
+  terminalId String?
+  terminal   Terminal?       @relation(fields: [terminalId], references: [id])
+  address    String
+  lat        Float?
+  lng        Float?
+  phone      String
+  staff      StaffProfile[]
+}
+
+model Bus {
+  id           String          @id @default(cuid())
+  operatorId   String
+  operator     OperatorProfile @relation(fields: [operatorId], references: [id])
+  registration String          @unique
+  model        String
+  type         BusType
+  totalSeats   Int
+  hasAC        Boolean         @default(true)
+  hasWiFi      Boolean         @default(false)
+  hasCharging  Boolean         @default(true)
+  status       BusStatus       @default(ACTIVE)
+
+  seats Seat[]
+  trips Trip[]
+}
+
+model Seat {
+  id        String     @id @default(cuid())
+  busId     String
+  bus       Bus        @relation(fields: [busId], references: [id], onDelete: Cascade)
+  seatNo    String
+  row       Int
+  column    Int
+  deck      Int        @default(1) // 1 for lower deck, 2 for upper deck
+
+  tripSeats TripSeat[]
+}
+
+model Route {
+  id            String          @id @default(cuid())
+  operatorId    String
+  operator      OperatorProfile @relation(fields: [operatorId], references: [id])
+  originId      String
+  origin        District        @relation("OriginDistrict", fields: [originId], references: [id])
+  destinationId String
+  destination   District        @relation("DestinationDistrict", fields: [destinationId], references: [id])
+  distanceKm    Float
+  durationHours Float
+
+  stops     RouteStop[]
+  schedules Schedule[]
+
+  @@index([originId, destinationId])
+}
+
+model RouteStop {
+  id           String   @id @default(cuid())
+  routeId      String
+  route        Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stopName     String
+  sequence     Int
+  lat          Float?
+  lng          Float?
+  offsetMinutes Int
+  allowBoarding Boolean @default(true)
+  allowDropping Boolean @default(true)
+}
+
+model Schedule {
+  id            String          @id @default(cuid())
+  operatorId    String
+  operator      OperatorProfile @relation(fields: [operatorId], references: [id])
+  routeId       String
+  route         Route           @relation(fields: [routeId], references: [id])
+  departureTime String // e.g. "22:30"
+  arrivalTime   String // e.g. "07:00"
+  fare          Float
+  operatingDays String // e.g. "1,2,3,4,5,6,7"
+
+  trips Trip[]
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  schedule    Schedule @relation(fields: [scheduleId], references: [id])
+  busId       String
+  bus         Bus      @relation(fields: [busId], references: [id])
+  driverId    String?
+  driver      DriverProfile? @relation(fields: [driverId], references: [id])
+  date        DateTime
+  fare        Float
+  status      String   @default("SCHEDULED")
+
+  tripSeats TripSeat[]
+  bookings  Booking[]
+
+  @@index([date])
+  @@index([scheduleId, date])
+}
+
+model TripSeat {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  seatId      String
+  seat        Seat     @relation(fields: [seatId], references: [id])
+  status      String   @default("AVAILABLE") // AVAILABLE, LOCKED, BOOKED
+  lockedBy    String?
+  lockedUntil DateTime?
+
+  bookingSeats BookingSeat[]
+
+  @@unique([tripId, seatId])
+  @@index([tripId, status])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  bookingCode String        @unique // e.g. BD-20260814-X892
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  tripId      String
+  trip        Trip          @relation(fields: [tripId], references: [id])
+  totalAmount Float
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+  bookingSeats BookingSeat[]
+  payment      Payment?
+  ticket       Ticket?
+
+  @@index([userId])
+  @@index([tripId])
+}
+
+model BookingSeat {
+  id         String   @id @default(cuid())
+  bookingId  String
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tripSeatId String
+  tripSeat   TripSeat @relation(fields: [tripSeatId], references: [id])
+  price      Float
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+  method        PaymentMethod
+  status        PaymentStatus @default(INITIATED)
+  amount        Float
+  transactionId String?
+  createdAt     DateTime      @default(now())
+}
+
+model Ticket {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  qrCode    String
+  issuedAt  DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model CancellationPolicy {
+  id         String          @id @default(cuid())
+  operatorId String          @unique
+  operator   OperatorProfile @relation(fields: [operatorId], references: [id])
+  rulesJson  String // JSON string defining policy hours & percentage
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  resource  String
+  createdAt DateTime @default(now())
+}
