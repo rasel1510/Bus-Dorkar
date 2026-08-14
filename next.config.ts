@@ -10,12 +10,7 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 31536000,
   },
 
-  // 3. Tree-shake heavy libraries so unused code is never sent to the browser
-  experimental: {
-    optimizePackageImports: ["lucide-react", "date-fns", "clsx", "tailwind-merge"],
-  },
-
-  // 4. Strip console.log statements from production client bundles
+  // 3. Strip console.log statements from production client bundles
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
