@@ -26,8 +26,13 @@ export function LoginForm() {
   });
 
   useEffect(() => {
-    if (searchParams.get("registered") === "true") {
+    const isRegistered = searchParams.get("registered") === "true";
+    const phoneParam = searchParams.get("phone");
+    if (isRegistered) {
       setSuccessMsg("Account created! Please enter your password to sign in.");
+      if (phoneParam) {
+        setFormData((prev) => ({ ...prev, identifier: decodeURIComponent(phoneParam) }));
+      }
     }
   }, [searchParams]);
 

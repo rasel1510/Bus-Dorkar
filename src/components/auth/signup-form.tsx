@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Phone, User, Bus, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, User, Bus, ArrowRight, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ export function SignUpForm() {
     acceptTerms: false,
   });
 
-  // Calculate simple password strength (0 to 4)
+  // Calculate password strength (0 to 4)
   const calculateStrength = (pass: string) => {
     let score = 0;
     if (pass.length >= 8) score++;
@@ -38,18 +38,34 @@ export function SignUpForm() {
 
   const passStrength = calculateStrength(formData.password);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setSuccessMsg(null);
 
     // Client-side validations
+    if (!formData.fullName.trim()) {
+      setErrorMsg("Please enter your full name.");
+      return;
+    }
+
+    if (!formData.phone.trim()) {
+      setErrorMsg("Please enter your Bangladesh mobile number.");
+      return;
+    }
+
+    if (!formData.password) {
+      setErrorMsg("Please enter a password.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setErrorMsg("Passwords do not match. Please check again.");
       return;
     }
+
     if (!formData.acceptTerms) {
-      setErrorMsg("Please accept the Terms of Service and Privacy Policy.");
+      setErrorMsg("Please accept the Terms of Service & Privacy Policy.");
       return;
     }
 
@@ -78,12 +94,13 @@ export function SignUpForm() {
         return;
       }
 
-      setSuccessMsg("Account created successfully! Redirecting to sign in...");
+      setSuccessMsg("Account created successfully! Redirecting to Sign In...");
       setIsLoading(false);
 
+      // Redirect user to Login page with their phone pre-filled
       setTimeout(() => {
-        router.push("/login?registered=true");
-      }, 1500);
+        router.push(`/login?registered=true&phone=${encodeURIComponent(formData.phone)}`);
+      }, 1200);
     } catch (err: any) {
       setIsLoading(false);
       setErrorMsg(err.message || "An unexpected network error occurred.");
@@ -114,7 +131,7 @@ export function SignUpForm() {
         {/* Error Alert */}
         {errorMsg && (
           <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -148,11 +165,11 @@ export function SignUpForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleCreateAccount} className="space-y-4">
           {/* Full Name */}
           <div className="space-y-1.5">
             <Label htmlFor="fullName" className="text-xs text-slate-300 font-semibold">
-              Full Name
+              Full Name *
             </Label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -163,7 +180,10 @@ export function SignUpForm() {
                 type="text"
                 placeholder="e.g. Tanvir Hossain"
                 value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                onChange={(e) => {
+                  setErrorMsg(null);
+                  setFormData({ ...formData, fullName: e.target.value });
+                }}
                 required
                 className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
               />
@@ -186,7 +206,10 @@ export function SignUpForm() {
                   type="email"
                   placeholder="tanvir@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setErrorMsg(null);
+                    setFormData({ ...formData, email: e.target.value });
+                  }}
                   className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
                 />
               </div>
@@ -195,7 +218,7 @@ export function SignUpForm() {
             {/* Phone */}
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-xs text-slate-300 font-semibold">
-                Mobile (+880)
+                Mobile (+880) *
               </Label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -206,7 +229,10 @@ export function SignUpForm() {
                   type="tel"
                   placeholder="01712345678"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => {
+                    setErrorMsg(null);
+                    setFormData({ ...formData, phone: e.target.value });
+                  }}
                   required
                   className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
                 />
@@ -217,7 +243,7 @@ export function SignUpForm() {
           {/* Password */}
           <div className="space-y-1.5">
             <Label htmlFor="signup-password" className="text-xs text-slate-300 font-semibold">
-              Password
+              Password *
             </Label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -228,7 +254,10 @@ export function SignUpForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="At least 8 characters"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) => {
+                  setErrorMsg(null);
+                  setFormData({ ...formData, password: e.target.value });
+                }}
                 required
                 className="pl-10 pr-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
               />
@@ -278,7 +307,7 @@ export function SignUpForm() {
           {/* Confirm Password */}
           <div className="space-y-1.5">
             <Label htmlFor="confirmPassword" className="text-xs text-slate-300 font-semibold">
-              Confirm Password
+              Confirm Password *
             </Label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
@@ -289,7 +318,10 @@ export function SignUpForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Re-enter password"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) => {
+                  setErrorMsg(null);
+                  setFormData({ ...formData, confirmPassword: e.target.value });
+                }}
                 required
                 className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
               />
@@ -301,9 +333,10 @@ export function SignUpForm() {
             <Checkbox
               id="terms"
               checked={formData.acceptTerms}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, acceptTerms: checked as boolean })
-              }
+              onCheckedChange={(checked) => {
+                setErrorMsg(null);
+                setFormData({ ...formData, acceptTerms: checked as boolean });
+              }}
               className="mt-0.5 border-white/20 data-[state=checked]:bg-bd-teal-500 data-[state=checked]:text-bd-navy-950"
             />
             <Label htmlFor="terms" className="text-xs text-slate-400 leading-normal cursor-pointer">
@@ -323,10 +356,13 @@ export function SignUpForm() {
             type="submit"
             disabled={isLoading}
             id="signup-submit-btn"
-            className="w-full h-12 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full h-12 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
           >
             {isLoading ? (
-              <span>Creating Account...</span>
+              <>
+                <Loader2 className="h-5 w-5 animate-spin text-bd-navy-950" />
+                <span>Creating Account...</span>
+              </>
             ) : (
               <>
                 <span>Create {role === "PASSENGER" ? "Passenger" : "Operator"} Account</span>
