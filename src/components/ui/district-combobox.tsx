@@ -40,27 +40,29 @@ export function DistrictCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          id={id}
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl transition-all"
-        >
-          <div className="flex items-center gap-2.5 truncate">
-            <MapPin className="h-4 w-4 text-bd-teal-400 shrink-0" />
-            {selectedDistrict ? (
-              <span className="truncate">
-                {selectedDistrict.name}{" "}
-                <span className="text-xs text-muted-foreground">({selectedDistrict.nameBn})</span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">{placeholder}</span>
-            )}
-          </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            id={id}
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl transition-all"
+          />
+        }
+      >
+        <div className="flex items-center gap-2.5 truncate">
+          <MapPin className="h-4 w-4 text-bd-teal-400 shrink-0" />
+          {selectedDistrict ? (
+            <span className="truncate">
+              {selectedDistrict.name}{" "}
+              <span className="text-xs text-muted-foreground">({selectedDistrict.nameBn})</span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">{placeholder}</span>
+          )}
+        </div>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0 bg-bd-navy-900 border-white/10 text-foreground shadow-2xl z-50">
         <Command className="bg-transparent">

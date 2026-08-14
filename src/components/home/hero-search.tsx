@@ -227,22 +227,23 @@ export function HeroSearch() {
                   Journey Date
                 </label>
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="search-date-btn"
-                      variant="outline"
-                      className="w-full justify-start bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-bd-teal-400" />
-                      {date ? format(date, "dd MMM yyyy") : <span>Pick date</span>}
-                    </Button>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        id="search-date-btn"
+                        variant="outline"
+                        className="w-full justify-start bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl"
+                      />
+                    }
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-bd-teal-400" />
+                    {date ? format(date, "dd MMM yyyy") : <span>Pick date</span>}
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-bd-navy-900 border-white/10 text-foreground z-50">
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
-                      initialFocus
                       disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                       className="bg-bd-navy-900 text-foreground rounded-xl"
                     />

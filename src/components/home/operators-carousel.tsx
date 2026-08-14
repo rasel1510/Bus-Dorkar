@@ -47,7 +47,9 @@ export function OperatorsCarousel() {
                   <h3 className="text-base font-bold text-white truncate group-hover:text-bd-teal-400 transition-colors">
                     {op.name}
                   </h3>
-                  <ShieldCheck className="h-4 w-4 text-bd-teal-400 shrink-0" title="Verified Operator" />
+                  <span title="Verified Operator">
+                    <ShieldCheck className="h-4 w-4 text-bd-teal-400 shrink-0" />
+                  </span>
                 </div>
                 <p className="text-xs text-slate-400 truncate mb-2">
                   {op.busTypes}
