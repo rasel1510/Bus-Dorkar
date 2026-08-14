@@ -26,18 +26,6 @@ export function SignUpForm() {
     acceptTerms: false,
   });
 
-  // Calculate password strength (0 to 4)
-  const calculateStrength = (pass: string) => {
-    let score = 0;
-    if (pass.length >= 8) score++;
-    if (/[A-Z]/.test(pass)) score++;
-    if (/[0-9]/.test(pass)) score++;
-    if (/[^A-Za-z0-9]/.test(pass)) score++;
-    return score;
-  };
-
-  const passStrength = calculateStrength(formData.password);
-
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -56,6 +44,11 @@ export function SignUpForm() {
 
     if (!formData.password) {
       setErrorMsg("Please enter a password.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setErrorMsg("Password must be at least 8 characters long.");
       return;
     }
 
@@ -115,9 +108,7 @@ export function SignUpForm() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Create Your <span className="gradient-text">Account</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Join Bus Dorkar for instant inter-district ticketing across Bangladesh
-          </p>
+
         </div>
 
         {/* Success Banner */}
@@ -141,11 +132,10 @@ export function SignUpForm() {
           <button
             type="button"
             onClick={() => setRole("PASSENGER")}
-            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              role === "PASSENGER"
+            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${role === "PASSENGER"
                 ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
           >
             <User className="h-4 w-4" />
             Passenger
@@ -153,11 +143,10 @@ export function SignUpForm() {
           <button
             type="button"
             onClick={() => setRole("BUS_OPERATOR")}
-            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              role === "BUS_OPERATOR"
+            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${role === "BUS_OPERATOR"
                 ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
           >
             <Bus className="h-4 w-4" />
             Bus Operator
@@ -269,39 +258,6 @@ export function SignUpForm() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-
-            {/* Password Strength Meter */}
-            {formData.password && (
-              <div className="space-y-1 pt-1">
-                <div className="flex gap-1 h-1.5">
-                  {[1, 2, 3, 4].map((step) => (
-                    <div
-                      key={step}
-                      className={`h-full flex-1 rounded-full transition-all ${
-                        step <= passStrength
-                          ? passStrength <= 1
-                            ? "bg-red-500"
-                            : passStrength === 2
-                            ? "bg-amber-500"
-                            : passStrength === 3
-                            ? "bg-bd-teal-400"
-                            : "bg-bd-emerald-400"
-                          : "bg-white/10"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-[10px] text-slate-400 text-right">
-                  {passStrength <= 1
-                    ? "Weak"
-                    : passStrength === 2
-                    ? "Medium"
-                    : passStrength === 3
-                    ? "Strong"
-                    : "Very Strong"}
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Confirm Password */}
