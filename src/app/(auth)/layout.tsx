@@ -4,13 +4,13 @@ import { Logo } from "@/components/ui/logo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-bd-navy-950 flex flex-col justify-between p-4 sm:p-6 lg:p-8 relative overflow-hidden selection:bg-bd-teal-500 selection:text-bd-navy-950">
+    <div className="min-h-screen bg-bd-navy-950 flex flex-col justify-between p-3 sm:p-5 relative overflow-x-hidden overflow-y-auto selection:bg-bd-teal-500 selection:text-bd-navy-950">
       {/* Background Radial Glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-bd-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-bd-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top Header */}
-      <header className="flex items-center justify-between max-w-7xl w-full mx-auto z-10">
+      <header className="flex items-center justify-between max-w-7xl w-full mx-auto z-10 shrink-0">
         <Logo />
         <Link
           href="/"
@@ -22,10 +22,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </header>
 
       {/* Main Content Container */}
-      <main className="my-auto py-8 z-10 flex justify-center">{children}</main>
+      <main className="my-auto py-2 sm:py-4 z-10 flex justify-center items-center">{children}</main>
 
       {/* Auth Footer */}
-      <footer className="text-center text-xs text-slate-500 z-10">
+      <footer className="text-center text-xs text-slate-500 z-10 shrink-0 py-1">
         <p>© 2026 Bus Dorkar. Secure Inter-District Bus Ticketing System Bangladesh.</p>
       </footer>
     </div>

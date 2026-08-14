@@ -9,9 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import { useAuth } from "@/context/auth-context";
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"phone" | "email">("phone");
   const [role, setRole] = useState<"passenger" | "operator" | "staff">("passenger");
@@ -62,18 +65,16 @@ export function LoginForm() {
         return;
       }
 
-      setSuccessMsg("Login successful! Redirecting...");
+      setSuccessMsg("Login successful! Redirecting to Home page...");
       setIsLoading(false);
 
+      if (data.user) {
+        login(data.user);
+      }
+
       setTimeout(() => {
-        if (data.user.role === "BUS_OPERATOR") {
-          router.push("/operator/dashboard");
-        } else if (data.user.role === "ADMIN") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/dashboard");
-        }
-      }, 1000);
+        window.location.href = "/";
+      }, 300);
     } catch (err: any) {
       setIsLoading(false);
       setErrorMsg(err.message || "Network error. Please try again.");

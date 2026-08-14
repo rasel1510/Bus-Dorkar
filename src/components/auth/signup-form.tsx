@@ -9,8 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import { useAuth } from "@/context/auth-context";
+
 export function SignUpForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"PASSENGER" | "BUS_OPERATOR">("PASSENGER");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,8 +29,10 @@ export function SignUpForm() {
     acceptTerms: false,
   });
 
-  const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateAccount = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isLoading) return;
+
     setErrorMsg(null);
     setSuccessMsg(null);
 
@@ -42,6 +47,12 @@ export function SignUpForm() {
       return;
     }
 
+    const cleanPhone = formData.phone.replace(/\s+/g, "");
+    if (!/^(?:\+8801|01)[3-9]\d{8}$/.test(cleanPhone)) {
+      setErrorMsg("Please enter a valid Bangladesh mobile number (e.g. 01712345678 or +8801712345678).");
+      return;
+    }
+
     if (!formData.password) {
       setErrorMsg("Please enter a password.");
       return;
@@ -49,6 +60,11 @@ export function SignUpForm() {
 
     if (formData.password.length < 8) {
       setErrorMsg("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (!/[A-Za-z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      setErrorMsg("Password must contain at least one letter and one number.");
       return;
     }
 
@@ -87,13 +103,16 @@ export function SignUpForm() {
         return;
       }
 
-      setSuccessMsg("Account created successfully! Redirecting to Sign In...");
-      setIsLoading(false);
+      if (data.user) {
+        login(data.user);
+      }
 
-      // Redirect user to Login page with their phone pre-filled
+      setSuccessMsg("Account created successfully! Redirecting to Home page...");
+
+      // Smooth redirect to Home page
       setTimeout(() => {
-        router.push(`/login?registered=true&phone=${encodeURIComponent(formData.phone)}`);
-      }, 1200);
+        window.location.href = "/";
+      }, 300);
     } catch (err: any) {
       setIsLoading(false);
       setErrorMsg(err.message || "An unexpected network error occurred.");
@@ -102,18 +121,17 @@ export function SignUpForm() {
 
   return (
     <div className="w-full max-w-lg">
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl gradient-border space-y-6">
+      <div className="glass-card rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl gradient-border space-y-4">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <div className="text-center space-y-1">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
             Create Your <span className="gradient-text">Account</span>
           </h1>
-
         </div>
 
         {/* Success Banner */}
         {successMsg && (
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
@@ -121,21 +139,22 @@ export function SignUpForm() {
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
             <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Role Selection */}
-        <div className="grid grid-cols-2 gap-3 p-1 bg-bd-navy-900/80 rounded-xl border border-white/5">
+        <div className="grid grid-cols-2 gap-2.5 p-1 bg-bd-navy-900/80 rounded-xl border border-white/5">
           <button
             type="button"
             onClick={() => setRole("PASSENGER")}
-            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${role === "PASSENGER"
+            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              role === "PASSENGER"
                 ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
                 : "text-slate-400 hover:text-white"
-              }`}
+            }`}
           >
             <User className="h-4 w-4" />
             Passenger
@@ -143,10 +162,11 @@ export function SignUpForm() {
           <button
             type="button"
             onClick={() => setRole("BUS_OPERATOR")}
-            className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${role === "BUS_OPERATOR"
+            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              role === "BUS_OPERATOR"
                 ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
                 : "text-slate-400 hover:text-white"
-              }`}
+            }`}
           >
             <Bus className="h-4 w-4" />
             Bus Operator
@@ -154,9 +174,9 @@ export function SignUpForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleCreateAccount} className="space-y-4">
+        <form onSubmit={handleCreateAccount} className="space-y-3">
           {/* Full Name */}
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <Label htmlFor="fullName" className="text-xs text-slate-300 font-semibold">
               Full Name *
             </Label>
@@ -174,7 +194,7 @@ export function SignUpForm() {
                   setFormData({ ...formData, fullName: e.target.value });
                 }}
                 required
-                className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
               />
             </div>
           </div>
@@ -182,7 +202,7 @@ export function SignUpForm() {
           {/* Email & Phone Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Email */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="email" className="text-xs text-slate-300 font-semibold">
                 Email Address (Optional)
               </Label>
@@ -199,13 +219,13 @@ export function SignUpForm() {
                     setErrorMsg(null);
                     setFormData({ ...formData, email: e.target.value });
                   }}
-                  className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
               </div>
             </div>
 
             {/* Phone */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="phone" className="text-xs text-slate-300 font-semibold">
                 Mobile (+880) *
               </Label>
@@ -223,69 +243,72 @@ export function SignUpForm() {
                     setFormData({ ...formData, phone: e.target.value });
                   }}
                   required
-                  className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
               </div>
             </div>
           </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <Label htmlFor="signup-password" className="text-xs text-slate-300 font-semibold">
-              Password *
-            </Label>
-            <div className="relative">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                <Lock className="h-4 w-4 text-bd-teal-400" />
+          {/* Password & Confirm Password Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Password */}
+            <div className="space-y-1">
+              <Label htmlFor="signup-password" className="text-xs text-slate-300 font-semibold">
+                Password *
+              </Label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Lock className="h-4 w-4 text-bd-teal-400" />
+                </div>
+                <Input
+                  id="signup-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min 8 chars"
+                  value={formData.password}
+                  onChange={(e) => {
+                    setErrorMsg(null);
+                    setFormData({ ...formData, password: e.target.value });
+                  }}
+                  required
+                  className="pl-10 pr-9 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
-              <Input
-                id="signup-password"
-                type={showPassword ? "text" : "password"}
-                placeholder="At least 8 characters"
-                value={formData.password}
-                onChange={(e) => {
-                  setErrorMsg(null);
-                  setFormData({ ...formData, password: e.target.value });
-                }}
-                required
-                className="pl-10 pr-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
             </div>
-          </div>
 
-          {/* Confirm Password */}
-          <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword" className="text-xs text-slate-300 font-semibold">
-              Confirm Password *
-            </Label>
-            <div className="relative">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                <Lock className="h-4 w-4 text-bd-teal-400" />
+            {/* Confirm Password */}
+            <div className="space-y-1">
+              <Label htmlFor="confirmPassword" className="text-xs text-slate-300 font-semibold">
+                Confirm Password *
+              </Label>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Lock className="h-4 w-4 text-bd-teal-400" />
+                </div>
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => {
+                    setErrorMsg(null);
+                    setFormData({ ...formData, confirmPassword: e.target.value });
+                  }}
+                  required
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                />
               </div>
-              <Input
-                id="confirmPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="Re-enter password"
-                value={formData.confirmPassword}
-                onChange={(e) => {
-                  setErrorMsg(null);
-                  setFormData({ ...formData, confirmPassword: e.target.value });
-                }}
-                required
-                className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
-              />
             </div>
           </div>
 
           {/* Terms Checkbox */}
-          <div className="flex items-start space-x-2 pt-1">
+          <div className="flex items-start space-x-2 pt-0.5">
             <Checkbox
               id="terms"
               checked={formData.acceptTerms}
@@ -312,7 +335,7 @@ export function SignUpForm() {
             type="submit"
             disabled={isLoading}
             id="signup-submit-btn"
-            className="w-full h-12 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
+            className="w-full h-11 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-1 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -329,7 +352,7 @@ export function SignUpForm() {
         </form>
 
         {/* Footer link */}
-        <div className="text-center text-xs text-slate-400 pt-2">
+        <div className="text-center text-xs text-slate-400 pt-1">
           Already have an account?{" "}
           <Link href="/login" className="text-bd-teal-400 font-bold hover:underline">
             Sign In
