@@ -1,7 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/auth-context";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
+import { PWAInstallPrompt } from "@/components/pwa/install-prompt";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -14,6 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// ===== SEO & Social Metadata =====
 export const metadata: Metadata = {
   title: {
     default: "Bus Dorkar — Bangladesh Inter-District Bus Ticketing Platform",
@@ -40,15 +44,46 @@ export const metadata: Metadata = {
     locale: "en_BD",
     siteName: "Bus Dorkar",
   },
+  // ===== PWA / Mobile Metadata =====
+  applicationName: "Bus Dorkar",
+  appleWebApp: {
+    capable: true,
+    title: "Bus Dorkar",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icon-192x192.png", sizes: "192x192" },
+    ],
+  },
 };
 
-import { AuthProvider } from "@/context/auth-context";
+// ===== Viewport (separate export — required in Next.js 14+) =====
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>
       <body className="min-h-screen bg-background font-sans antialiased text-foreground bg-white">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        {/* PWA Components — rendered outside AuthProvider so they're always visible */}
+        <OfflineBanner />
+        <PWAInstallPrompt />
       </body>
     </html>
   );
