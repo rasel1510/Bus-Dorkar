@@ -409,3 +409,17 @@
 .pulse-marker {
   animation: marker-pulse 2s infinite;
 }
+
+/* ===== MOBILE UTILITIES ===== */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.touch-action-manipulation {
+  touch-action: manipulation;
+}

@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import { OPERATOR_PROFILES } from "@/lib/data/buses";
 
 interface SearchFiltersProps {
   timeFilter: string;
@@ -20,17 +19,16 @@ export function SearchFilters({
   setTimeFilter,
   busTypeFilter,
   setBusTypeFilter,
-  operatorFilter,
-  setOperatorFilter,
   sortBy,
   setSortBy,
   totalResults,
 }: SearchFiltersProps) {
   return (
-    <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
-      {/* Time & Type Filter Chips */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+    <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+      {/* Time & Type Filter Chips (Horizontal Scroll on Mobile) */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 w-full sm:w-auto">
+        {/* Time Chips */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
           {[
             { id: "all", label: "All Times" },
             { id: "morning", label: "Morning" },
@@ -41,7 +39,7 @@ export function SearchFilters({
               key={t.id}
               type="button"
               onClick={() => setTimeFilter(t.id)}
-              className={`px-2.5 py-1 rounded-md font-bold text-xs transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-md font-bold text-xs transition-all cursor-pointer shrink-0 ${
                 timeFilter === t.id
                   ? "bg-teal-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
@@ -52,7 +50,8 @@ export function SearchFilters({
           ))}
         </div>
 
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+        {/* Bus Type Chips */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 shrink-0">
           {[
             { id: "all", label: "All Buses" },
             { id: "ac", label: "AC" },
@@ -63,7 +62,7 @@ export function SearchFilters({
               key={b.id}
               type="button"
               onClick={() => setBusTypeFilter(b.id)}
-              className={`px-2.5 py-1 rounded-md font-bold text-xs transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-md font-bold text-xs transition-all cursor-pointer shrink-0 ${
                 busTypeFilter === b.id
                   ? "bg-teal-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
@@ -76,9 +75,9 @@ export function SearchFilters({
       </div>
 
       {/* Right: Results Count & Sort Dropdown */}
-      <div className="flex items-center gap-3">
-        <span className="font-bold text-slate-700 hidden sm:inline">
-          {totalResults} buses found
+      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+        <span className="font-bold text-slate-700 text-xs">
+          {totalResults} {totalResults === 1 ? "bus" : "buses"} found
         </span>
 
         <div className="flex items-center gap-1">

@@ -112,28 +112,33 @@ function SearchResultsContent() {
         <section className="bg-white border-b border-slate-200 py-3">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2 w-full md:w-auto flex-1">
-                <DistrictCombobox
-                  value={fromDistrictId}
-                  onChange={setFromDistrictId}
-                  placeholder="From"
-                  disabledDistrictId={toDistrictId}
-                />
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto flex-1">
+                <div className="w-full flex-1">
+                  <DistrictCombobox
+                    value={fromDistrictId}
+                    onChange={setFromDistrictId}
+                    placeholder="From"
+                    disabledDistrictId={toDistrictId}
+                  />
+                </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={handleSwap}
-                  className="rounded-lg bg-slate-50 border-slate-300 text-teal-700 h-10 w-10 shrink-0 cursor-pointer"
+                  className="rounded-lg bg-slate-50 border-slate-300 text-teal-700 h-10 w-10 shrink-0 cursor-pointer my-0.5 sm:my-0"
+                  title="Swap Origin & Destination"
                 >
                   <ArrowRightLeft className="h-3.5 w-3.5" />
                 </Button>
-                <DistrictCombobox
-                  value={toDistrictId}
-                  onChange={setToDistrictId}
-                  placeholder="To"
-                  disabledDistrictId={fromDistrictId}
-                />
+                <div className="w-full flex-1">
+                  <DistrictCombobox
+                    value={toDistrictId}
+                    onChange={setToDistrictId}
+                    placeholder="To"
+                    disabledDistrictId={fromDistrictId}
+                  />
+                </div>
               </div>
 
               <div className="w-full md:w-48">

@@ -552,7 +552,7 @@ export function InteractiveMap({
       {/* ===== 3. OPENSTREETMAP CONTAINER ===== */}
       <div
         className={`relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-xl bg-slate-50 transition-all ${
-          isFullscreen ? "flex-1 min-h-[500px]" : "h-[450px]"
+          isFullscreen ? "flex-1 min-h-[500px]" : "h-[340px] sm:h-[450px]"
         }`}
       >
         {/* Leaflet Stylesheet standard CDN */}

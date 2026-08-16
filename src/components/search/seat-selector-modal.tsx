@@ -85,7 +85,7 @@ export function SeatSelectorModal({
 
   return (
     <Dialog open={open} onOpenChange={handleResetAndClose}>
-      <DialogContent className="sm:max-w-3xl bg-white text-slate-900 border border-slate-200 p-0 overflow-hidden shadow-xl rounded-2xl z-50">
+      <DialogContent className="w-[calc(100vw-24px)] sm:max-w-3xl max-h-[92vh] overflow-y-auto bg-white text-slate-900 border border-slate-200 p-0 shadow-2xl rounded-2xl z-50">
         {/* CLEAN WHITE HEADER */}
         <div className="bg-white text-slate-900 p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
           <div className="space-y-0.5">

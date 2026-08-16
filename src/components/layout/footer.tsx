@@ -13,7 +13,7 @@ export function Footer() {
             <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
               Bus Dorkar is Bangladesh's dedicated inter-district bus discovery, timetable, and ticketing management platform. Real-time seat reservation across all 64 districts.
             </p>
-            <div className="pt-2 flex items-center gap-4 text-xs font-semibold text-teal-700">
+            <div className="pt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold text-teal-700">
               <span className="flex items-center gap-1">
                 <Shield className="h-4 w-4 text-teal-600" /> 100% Verified Operators
               </span>

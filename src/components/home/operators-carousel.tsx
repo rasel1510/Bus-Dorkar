@@ -13,7 +13,7 @@ const operators = [
 
 export function OperatorsCarousel() {
   return (
-    <section className="py-20 bg-slate-50 relative border-t border-slate-200">
+    <section className="py-12 sm:py-20 bg-slate-50 relative border-t border-slate-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">

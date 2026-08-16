@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function PopularRoutes() {
   return (
-    <section className="py-20 bg-white relative">
+    <section className="py-12 sm:py-20 bg-white relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">

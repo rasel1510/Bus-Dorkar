@@ -64,7 +64,7 @@ export function DistrictCombobox({
         </div>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-slate-500" />
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50 rounded-2xl overflow-hidden">
+      <PopoverContent className="w-[calc(100vw-32px)] sm:w-[320px] max-w-sm p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50 rounded-2xl overflow-hidden">
         <Command className="bg-white">
           <CommandInput
             placeholder="Search district (e.g. Dhaka, Cox's Bazar)..."
