@@ -121,39 +121,39 @@ export function SignUpForm() {
 
   return (
     <div className="w-full max-w-lg">
-      <div className="glass-card rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl gradient-border space-y-4">
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-2xl space-y-4">
         {/* Header */}
         <div className="text-center space-y-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             Create Your <span className="gradient-text">Account</span>
           </h1>
         </div>
 
         {/* Success Banner */}
         {successMsg && (
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Role Selection */}
-        <div className="grid grid-cols-2 gap-2.5 p-1 bg-bd-navy-900/80 rounded-xl border border-white/5">
+        <div className="grid grid-cols-2 gap-2.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
           <button
             type="button"
             onClick={() => setRole("PASSENGER")}
             className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
               role === "PASSENGER"
-                ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-teal-600 text-white shadow-md"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <User className="h-4 w-4" />
@@ -164,8 +164,8 @@ export function SignUpForm() {
             onClick={() => setRole("BUS_OPERATOR")}
             className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
               role === "BUS_OPERATOR"
-                ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
-                : "text-slate-400 hover:text-white"
+                ? "bg-teal-600 text-white shadow-md"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <Bus className="h-4 w-4" />
@@ -177,12 +177,12 @@ export function SignUpForm() {
         <form onSubmit={handleCreateAccount} className="space-y-3">
           {/* Full Name */}
           <div className="space-y-1">
-            <Label htmlFor="fullName" className="text-xs text-slate-300 font-semibold">
+            <Label htmlFor="fullName" className="text-xs text-slate-800 font-bold">
               Full Name *
             </Label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                <User className="h-4 w-4 text-bd-teal-400" />
+                <User className="h-4 w-4 text-teal-600" />
               </div>
               <Input
                 id="fullName"
@@ -194,7 +194,7 @@ export function SignUpForm() {
                   setFormData({ ...formData, fullName: e.target.value });
                 }}
                 required
-                className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                className="pl-10 h-11 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 text-xs sm:text-sm font-medium"
               />
             </div>
           </div>
@@ -203,12 +203,12 @@ export function SignUpForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Email */}
             <div className="space-y-1">
-              <Label htmlFor="email" className="text-xs text-slate-300 font-semibold">
+              <Label htmlFor="email" className="text-xs text-slate-800 font-bold">
                 Email Address (Optional)
               </Label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Mail className="h-4 w-4 text-bd-teal-400" />
+                  <Mail className="h-4 w-4 text-teal-600" />
                 </div>
                 <Input
                   id="email"
@@ -219,19 +219,19 @@ export function SignUpForm() {
                     setErrorMsg(null);
                     setFormData({ ...formData, email: e.target.value });
                   }}
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 text-xs sm:text-sm font-medium"
                 />
               </div>
             </div>
 
             {/* Phone */}
             <div className="space-y-1">
-              <Label htmlFor="phone" className="text-xs text-slate-300 font-semibold">
+              <Label htmlFor="phone" className="text-xs text-slate-800 font-bold">
                 Mobile (+880) *
               </Label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Phone className="h-4 w-4 text-bd-teal-400" />
+                  <Phone className="h-4 w-4 text-teal-600" />
                 </div>
                 <Input
                   id="phone"
@@ -243,7 +243,7 @@ export function SignUpForm() {
                     setFormData({ ...formData, phone: e.target.value });
                   }}
                   required
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 text-xs sm:text-sm font-medium"
                 />
               </div>
             </div>
@@ -253,12 +253,12 @@ export function SignUpForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Password */}
             <div className="space-y-1">
-              <Label htmlFor="signup-password" className="text-xs text-slate-300 font-semibold">
+              <Label htmlFor="signup-password" className="text-xs text-slate-800 font-bold">
                 Password *
               </Label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Lock className="h-4 w-4 text-bd-teal-400" />
+                  <Lock className="h-4 w-4 text-teal-600" />
                 </div>
                 <Input
                   id="signup-password"
@@ -270,12 +270,12 @@ export function SignUpForm() {
                     setFormData({ ...formData, password: e.target.value });
                   }}
                   required
-                  className="pl-10 pr-9 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 pr-9 h-11 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 text-xs sm:text-sm font-medium"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -284,12 +284,12 @@ export function SignUpForm() {
 
             {/* Confirm Password */}
             <div className="space-y-1">
-              <Label htmlFor="confirmPassword" className="text-xs text-slate-300 font-semibold">
+              <Label htmlFor="confirmPassword" className="text-xs text-slate-800 font-bold">
                 Confirm Password *
               </Label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                  <Lock className="h-4 w-4 text-bd-teal-400" />
+                  <Lock className="h-4 w-4 text-teal-600" />
                 </div>
                 <Input
                   id="confirmPassword"
@@ -301,7 +301,7 @@ export function SignUpForm() {
                     setFormData({ ...formData, confirmPassword: e.target.value });
                   }}
                   required
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 text-xs sm:text-sm font-medium"
                 />
               </div>
             </div>
@@ -316,15 +316,15 @@ export function SignUpForm() {
                 setErrorMsg(null);
                 setFormData({ ...formData, acceptTerms: checked as boolean });
               }}
-              className="mt-0.5 border-white/20 data-[state=checked]:bg-bd-teal-500 data-[state=checked]:text-bd-navy-950"
+              className="mt-0.5 border-slate-300 data-[state=checked]:bg-teal-600 data-[state=checked]:text-white"
             />
-            <Label htmlFor="terms" className="text-xs text-slate-400 leading-normal cursor-pointer">
+            <Label htmlFor="terms" className="text-xs text-slate-600 leading-normal font-medium cursor-pointer">
               I agree to Bus Dorkar's{" "}
-              <Link href="/terms" className="text-bd-teal-400 underline">
+              <Link href="/terms" className="text-teal-700 font-bold underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="text-bd-teal-400 underline">
+              <Link href="/privacy" className="text-teal-700 font-bold underline">
                 Privacy Policy
               </Link>
             </Label>
@@ -335,11 +335,11 @@ export function SignUpForm() {
             type="submit"
             disabled={isLoading}
             id="signup-submit-btn"
-            className="w-full h-11 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-1 cursor-pointer"
+            className="w-full h-11 gradient-teal hover:opacity-95 text-white font-extrabold text-sm sm:text-base rounded-xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2 mt-1 cursor-pointer"
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin text-bd-navy-950" />
+                <Loader2 className="h-5 w-5 animate-spin text-white" />
                 <span>Creating Account...</span>
               </>
             ) : (
@@ -352,9 +352,9 @@ export function SignUpForm() {
         </form>
 
         {/* Footer link */}
-        <div className="text-center text-xs text-slate-400 pt-1">
+        <div className="text-center text-xs text-slate-600 font-medium pt-1">
           Already have an account?{" "}
-          <Link href="/login" className="text-bd-teal-400 font-bold hover:underline">
+          <Link href="/login" className="text-teal-700 font-extrabold hover:underline">
             Sign In
           </Link>
         </div>

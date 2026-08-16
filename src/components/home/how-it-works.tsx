@@ -31,17 +31,17 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-20 bg-bd-navy-900/50 relative border-y border-white/5">
+    <section className="py-20 bg-slate-50 relative border-y border-slate-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-bd-teal-400 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-teal-700 tracking-wider uppercase">
             Simple & Fast
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             How <span className="gradient-text">Bus Dorkar</span> Works
           </h2>
-          <p className="text-slate-300 text-sm">
+          <p className="text-slate-600 text-sm font-medium">
             Book your inter-district bus ticket in less than 2 minutes.
           </p>
         </div>
@@ -51,23 +51,23 @@ export function HowItWorks() {
           {steps.map((item, idx) => (
             <div
               key={idx}
-              className="glass-card rounded-2xl p-6 border border-white/5 relative group hover:border-bd-teal-500/30 transition-all hover-lift"
+              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-md relative group hover:border-teal-500 transition-all hover-lift"
             >
               {/* Step Badge */}
               <div className="flex items-center justify-between mb-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-teal text-bd-navy-950 shadow-lg shadow-bd-teal-500/20">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-teal text-white shadow-md shadow-teal-600/20">
                   <item.icon className="h-6 w-6" strokeWidth={2.2} />
                 </div>
-                <span className="text-3xl font-extrabold text-white/30 group-hover:text-bd-teal-400/40 transition-colors">
+                <span className="text-3xl font-extrabold text-slate-300 group-hover:text-teal-600 transition-colors">
                   {item.step}
                 </span>
               </div>
 
               {/* Title & Desc */}
-              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-bd-teal-400 transition-colors">
+              <h3 className="text-lg font-extrabold text-slate-900 mb-2 group-hover:text-teal-700 transition-colors">
                 {item.title}
               </h3>
-              <p className="text-slate-300 text-xs leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed font-medium">
                 {item.description}
               </p>
             </div>

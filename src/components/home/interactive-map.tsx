@@ -69,9 +69,9 @@ function MapBoundsController({
 // Available Map Tile Themes
 const MAP_THEMES = [
   {
-    id: "dark",
-    name: "Dark Canvas (CARTO)",
-    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    id: "voyager",
+    name: "CARTO Voyager (Light)",
+    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   },
@@ -81,13 +81,6 @@ const MAP_THEMES = [
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  },
-  {
-    id: "voyager",
-    name: "CARTO Voyager",
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   },
   {
     id: "satellite",
@@ -115,15 +108,17 @@ export function InteractiveMap({
   const [locating, setLocating] = useState(false);
   const [nearestDistrict, setNearestDistrict] = useState<District | null>(null);
   const [nearestTerminal, setNearestTerminal] = useState<any | null>(null);
-  const [selectedTheme, setSelectedTheme] = useState<string>("dark");
+  const [selectedTheme, setSelectedTheme] = useState<string>("voyager");
   const [terminalQuery, setTerminalQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "terminals" | "districts">("all");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [busProgress, setBusProgress] = useState(0.45); // bus position ratio along route
   const [L, setL] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   // Dynamic import of Leaflet on client mount
   useEffect(() => {
+    setMounted(true);
     import("leaflet").then((leaflet) => {
       setL(leaflet);
     });
@@ -446,30 +441,30 @@ export function InteractiveMap({
   return (
     <div
       className={`space-y-4 transition-all duration-300 ${
-        isFullscreen ? "fixed inset-0 z-50 p-4 bg-bd-navy-950/95 backdrop-blur-xl flex flex-col justify-between" : ""
+        isFullscreen ? "fixed inset-0 z-50 p-4 bg-white/95 backdrop-blur-xl flex flex-col justify-between" : ""
       }`}
     >
       {/* ===== 1. LIVE ROUTE & GPS METRICS BAR ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-4 glass-card rounded-2xl border border-white/10 shadow-xl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-md">
         {/* Route Connection Overview */}
         <div className="lg:col-span-7 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-xl bg-bd-teal-500/10 border border-bd-teal-500/30 flex items-center justify-center text-bd-teal-400 shrink-0">
+            <div className="h-11 w-11 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shrink-0">
               <Route className="h-6 w-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
+              <div className="flex items-center gap-2 text-slate-900 font-extrabold text-sm sm:text-base">
                 <span>{fromDistrict.name}</span>
-                <ArrowRight className="h-4 w-4 text-bd-teal-400" />
+                <ArrowRight className="h-4 w-4 text-teal-600" />
                 <span>{toDistrict.name}</span>
-                <span className="text-xs px-2 py-0.5 rounded-md bg-bd-teal-500/20 text-bd-teal-300 border border-bd-teal-500/30">
+                <span className="text-xs px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-200 font-bold">
                   {highwayName}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
-                <span>Road Distance: <strong className="text-slate-200">{estimatedRoadKm} km</strong></span>
+              <p className="text-xs text-slate-600 mt-0.5 flex items-center gap-2 font-medium">
+                <span>Road Distance: <strong className="text-slate-900">{estimatedRoadKm} km</strong></span>
                 <span>•</span>
-                <span>Est. Bus Time: <strong className="text-slate-200">{estHoursLow}-{estHoursHigh} Hours</strong></span>
+                <span>Est. Bus Time: <strong className="text-slate-900">{estHoursLow}-{estHoursHigh} Hours</strong></span>
               </p>
             </div>
           </div>
@@ -482,7 +477,7 @@ export function InteractiveMap({
             onClick={handleGetLocation}
             disabled={locating}
             id="detect-live-location-btn"
-            className="gradient-teal text-bd-navy-950 font-bold text-xs h-11 px-4 rounded-xl shadow-lg shadow-bd-teal-500/20 flex items-center gap-2 w-full sm:w-auto justify-center"
+            className="gradient-teal text-white font-extrabold text-xs h-11 px-4 rounded-xl shadow-md shadow-teal-600/20 flex items-center gap-2 w-full sm:w-auto justify-center cursor-pointer"
           >
             <LocateFixed className={`h-4 w-4 ${locating ? "animate-spin" : ""}`} />
             {locating ? "Locating..." : userLocation ? "Update GPS Location" : "Detect My Live GPS Location"}
@@ -492,7 +487,7 @@ export function InteractiveMap({
             type="button"
             variant="outline"
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="h-11 w-11 p-0 rounded-xl bg-bd-navy-900 border-white/10 hover:bg-white/10 text-slate-300"
+            className="h-11 w-11 p-0 rounded-xl bg-slate-100 border-slate-300 hover:bg-slate-200 text-slate-700 cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -502,9 +497,9 @@ export function InteractiveMap({
 
       {/* GPS Detection Result Notice */}
       {userLocation && nearestDistrict && (
-        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between text-xs text-blue-300">
-          <span className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-blue-400 shrink-0" />
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs text-blue-900">
+          <span className="flex items-center gap-2 font-medium">
+            <Sparkles className="h-4 w-4 text-blue-600 shrink-0" />
             Detected near <strong>{nearestDistrict.name} District ({nearestDistrict.nameBn})</strong>
             {nearestTerminal && (
               <> • Closest Bus Terminal: <strong>{nearestTerminal.name} ({nearestTerminal.distanceKm} km away)</strong></>
@@ -512,7 +507,7 @@ export function InteractiveMap({
           </span>
           <button
             onClick={() => onSelectFromDistrict && onSelectFromDistrict(nearestDistrict.id)}
-            className="font-semibold text-blue-400 underline hover:text-white"
+            className="font-bold text-blue-700 underline hover:text-blue-900 cursor-pointer"
           >
             Set as Origin
           </button>
@@ -520,7 +515,7 @@ export function InteractiveMap({
       )}
 
       {/* ===== 2. MAP HEADER CONTROL TOOLBAR ===== */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-bd-navy-900/90 p-3 rounded-2xl border border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
         {/* Search Bus Terminal Input */}
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -529,23 +524,23 @@ export function InteractiveMap({
             placeholder="Search terminal or district on map..."
             value={terminalQuery}
             onChange={(e) => setTerminalQuery(e.target.value)}
-            className="pl-9 h-9 text-xs bg-bd-navy-950 border-white/10 text-slate-200 placeholder:text-slate-500 rounded-xl focus-visible:ring-bd-teal-500"
+            className="pl-9 h-9 text-xs bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus-visible:ring-teal-600"
           />
         </div>
 
         {/* Map Tile Style Switcher Dropdown / Buttons */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs text-slate-400 mr-1 hidden sm:flex items-center gap-1">
-            <Layers className="h-3.5 w-3.5 text-bd-teal-400" /> Layer:
+          <span className="text-xs text-slate-600 font-bold mr-1 hidden sm:flex items-center gap-1">
+            <Layers className="h-3.5 w-3.5 text-teal-600" /> Layer:
           </span>
           {MAP_THEMES.map((theme) => (
             <button
               key={theme.id}
               onClick={() => setSelectedTheme(theme.id)}
-              className={`text-xs px-2.5 py-1.2 rounded-lg font-medium transition-all whitespace-nowrap ${
+              className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap cursor-pointer ${
                 selectedTheme === theme.id
-                  ? "bg-bd-teal-500 text-bd-navy-950 font-bold shadow-md shadow-bd-teal-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-teal-600 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
               {theme.name.split(" ")[0]}
@@ -556,7 +551,7 @@ export function InteractiveMap({
 
       {/* ===== 3. OPENSTREETMAP CONTAINER ===== */}
       <div
-        className={`relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl glass-card transition-all ${
+        className={`relative w-full rounded-2xl overflow-hidden border border-slate-200 shadow-xl bg-slate-50 transition-all ${
           isFullscreen ? "flex-1 min-h-[500px]" : "h-[450px]"
         }`}
       >
@@ -568,12 +563,13 @@ export function InteractiveMap({
           crossOrigin=""
         />
 
-        {L && (
+        {mounted && L && (
           <MapContainer
+            key={selectedTheme}
             center={[23.8103, 90.4125]} // Dhaka center coordinates
             zoom={7}
             scrollWheelZoom={false}
-            className="h-full w-full z-0 bg-bd-navy-950"
+            className="h-full w-full z-0 bg-slate-100"
           >
             {/* OpenStreetMap Tile Provider */}
             <TileLayer
@@ -586,9 +582,9 @@ export function InteractiveMap({
             <Polyline
               positions={routePositions}
               pathOptions={{
-                color: "#14b8a6",
+                color: "#0d9488",
                 weight: 5,
-                opacity: 0.85,
+                opacity: 0.9,
                 dashArray: "10, 10",
               }}
             />
@@ -596,9 +592,9 @@ export function InteractiveMap({
             {/* Simulated Live Bus Icon moving along Polyline */}
             <Marker
               position={[animatedBusLat, animatedBusLng]}
-              icon={createCustomIcon("#f59e0b", "Bus", "bus")}
+              icon={createCustomIcon("#d97706", "Bus", "bus")}
             >
-              <Tooltip permanent direction="top" offset={[0, -18]} className="bg-bd-navy-950 border-bd-teal-500 text-slate-100 text-[10px] rounded-md px-1.5 py-0.5">
+              <Tooltip permanent direction="top" offset={[0, -18]} className="bg-white border-teal-600 text-slate-900 text-[10px] font-bold rounded-md px-2 py-0.5 shadow-md">
                 🚌 Live Express Bus En Route
               </Tooltip>
             </Marker>
@@ -606,29 +602,29 @@ export function InteractiveMap({
             {/* Origin District Marker (A) */}
             <Marker
               position={[fromDistrict.lat, fromDistrict.lng]}
-              icon={createCustomIcon("#14b8a6", "A", "origin")}
+              icon={createCustomIcon("#0d9488", "A", "origin")}
             >
               <Popup>
-                <div className="p-3 w-64 text-slate-100 font-sans space-y-2">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <span className="text-xs font-bold text-bd-teal-400 flex items-center gap-1">
+                <div className="p-3 w-64 text-slate-900 font-sans space-y-2">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span className="text-xs font-bold text-teal-700 flex items-center gap-1">
                       <MapPin className="h-4 w-4" /> Origin District
                     </span>
-                    <span className="text-[10px] bg-bd-teal-500/20 text-bd-teal-300 px-2 py-0.5 rounded-full font-semibold">
+                    <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-bold">
                       {fromDistrict.division}
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">
+                    <h4 className="text-sm font-extrabold text-slate-900">
                       {fromDistrict.name} ({fromDistrict.nameBn})
                     </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
                       Coordinates: {fromDistrict.lat.toFixed(4)}°N, {fromDistrict.lng.toFixed(4)}°E
                     </p>
                   </div>
                   <div className="pt-1 flex items-center gap-2">
-                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Departure Point Selected
+                    <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Departure Point Selected
                     </span>
                   </div>
                 </div>
@@ -638,29 +634,29 @@ export function InteractiveMap({
             {/* Destination District Marker (B) */}
             <Marker
               position={[toDistrict.lat, toDistrict.lng]}
-              icon={createCustomIcon("#10b981", "B", "destination")}
+              icon={createCustomIcon("#059669", "B", "destination")}
             >
               <Popup>
-                <div className="p-3 w-64 text-slate-100 font-sans space-y-2">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                <div className="p-3 w-64 text-slate-900 font-sans space-y-2">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
                       <MapPin className="h-4 w-4" /> Destination District
                     </span>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
                       {toDistrict.division}
                     </span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">
+                    <h4 className="text-sm font-extrabold text-slate-900">
                       {toDistrict.name} ({toDistrict.nameBn})
                     </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
                       Coordinates: {toDistrict.lat.toFixed(4)}°N, {toDistrict.lng.toFixed(4)}°E
                     </p>
                   </div>
                   <div className="pt-1 flex items-center gap-2">
-                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Destination Point Selected
+                    <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Destination Point Selected
                     </span>
                   </div>
                 </div>
@@ -671,13 +667,13 @@ export function InteractiveMap({
             {userLocation && (
               <Marker position={[userLocation.lat, userLocation.lng]} icon={createLiveUserIcon()}>
                 <Popup>
-                  <div className="p-3 w-56 text-slate-100 font-sans space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
+                  <div className="p-3 w-56 text-slate-900 font-sans space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700">
                       <LocateFixed className="h-4 w-4" /> Your Current Live GPS
                     </div>
                     {nearestDistrict && (
-                      <p className="text-xs text-slate-300">
-                        Nearest District: <strong>{nearestDistrict.name}</strong>
+                      <p className="text-xs text-slate-600">
+                        Nearest District: <strong className="text-slate-900">{nearestDistrict.name}</strong>
                       </p>
                     )}
                   </div>
@@ -693,13 +689,13 @@ export function InteractiveMap({
                 icon={createCustomIcon("#0284c7", "T", "terminal")}
               >
                 <Popup>
-                  <div className="p-3 w-60 text-slate-100 font-sans space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-sky-400">
+                  <div className="p-3 w-60 text-slate-900 font-sans space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-sky-700">
                       <Terminal className="h-4 w-4" /> Bus Terminal
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-white">{terminal.name}</h4>
-                      {terminal.nameBn && <p className="text-xs text-slate-400">{terminal.nameBn}</p>}
+                      <h4 className="text-xs font-extrabold text-slate-900">{terminal.name}</h4>
+                      {terminal.nameBn && <p className="text-xs text-slate-500">{terminal.nameBn}</p>}
                     </div>
                     <div className="pt-1 flex gap-2">
                       {onSelectFromDistrict && (
@@ -708,7 +704,7 @@ export function InteractiveMap({
                             const foundDist = allDistricts.find((d) => d.id === terminal.district);
                             if (foundDist) onSelectFromDistrict(foundDist.id);
                           }}
-                          className="text-[10px] px-2.5 py-1 rounded-md bg-bd-teal-500/20 text-bd-teal-300 border border-bd-teal-500/40 font-semibold hover:bg-bd-teal-500 hover:text-bd-navy-950 transition-all"
+                          className="text-[10px] px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-bold hover:bg-teal-600 hover:text-white transition-all cursor-pointer"
                         >
                           Select Origin
                         </button>
@@ -719,7 +715,7 @@ export function InteractiveMap({
                             const foundDist = allDistricts.find((d) => d.id === terminal.district);
                             if (foundDist) onSelectToDistrict(foundDist.id);
                           }}
-                          className="text-[10px] px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold hover:bg-emerald-500 hover:text-bd-navy-950 transition-all"
+                          className="text-[10px] px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold hover:bg-emerald-600 hover:text-white transition-all cursor-pointer"
                         >
                           Select Dest.
                         </button>
@@ -733,26 +729,26 @@ export function InteractiveMap({
         )}
 
         {/* ===== MAP LEGEND FLOATING BAR ===== */}
-        <div className="absolute bottom-3 left-3 z-10 glass-card px-3 py-2 rounded-xl text-[11px] text-slate-300 flex flex-wrap items-center gap-3 sm:gap-4 border border-white/10 shadow-lg">
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="h-3 w-3 rounded-full bg-bd-teal-400 shadow-sm shadow-bd-teal-400" />
+        <div className="absolute bottom-3 left-3 z-10 bg-white/95 px-3.5 py-2 rounded-xl text-[11px] text-slate-800 flex flex-wrap items-center gap-3 sm:gap-4 border border-slate-200 shadow-lg backdrop-blur-md">
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="h-3 w-3 rounded-full bg-teal-600 shadow-sm" />
             Origin ({fromDistrict.name})
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="h-3 w-3 rounded-full bg-emerald-600 shadow-sm" />
             Destination ({toDistrict.name})
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="h-3 w-3 rounded-full bg-sky-500 shadow-sm shadow-sky-500" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="h-3 w-3 rounded-full bg-sky-600 shadow-sm" />
             Terminals ({filteredTerminals.length})
           </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <span className="h-3 w-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500 animate-pulse" />
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="h-3 w-3 rounded-full bg-amber-500 shadow-sm animate-pulse" />
             Live Express Bus
           </span>
           {userLocation && (
-            <span className="flex items-center gap-1.5 font-bold text-blue-400">
-              <span className="h-3 w-3 rounded-full bg-blue-500 animate-ping" />
+            <span className="flex items-center gap-1.5 font-bold text-blue-700">
+              <span className="h-3 w-3 rounded-full bg-blue-600 animate-ping" />
               You
             </span>
           )}

@@ -2,13 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar as CalendarIcon, Users, ArrowRightLeft, Search, Bus, ShieldCheck, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, Users, ArrowRightLeft, Search, ShieldCheck, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DistrictCombobox } from "@/components/ui/district-combobox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { InteractiveMap } from "@/components/home/interactive-map";
+import dynamic from "next/dynamic";
+
+const InteractiveMap = dynamic(
+  () => import("@/components/home/interactive-map").then((mod) => mod.InteractiveMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[450px] w-full bg-slate-100 animate-pulse rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 font-semibold text-sm">
+        Loading Interactive Bangladesh Map...
+      </div>
+    ),
+  }
+);
 
 export function HeroSearch() {
   const router = useRouter();
@@ -34,15 +46,15 @@ export function HeroSearch() {
   };
 
   return (
-    <section className="relative pt-20 pb-12 bg-bd-navy-950">
+    <section className="relative pt-24 pb-12 bg-white text-slate-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full space-y-8">
-        {/* ===== TOP: GLASSMORPHISM SEARCH CARD ===== */}
-        <div className="max-w-5xl mx-auto glass-card rounded-2xl p-4 sm:p-6 shadow-2xl shadow-black/50 gradient-border">
+        {/* ===== TOP: HIGH-CONTRAST LIGHT SEARCH CARD ===== */}
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl p-5 sm:p-7 shadow-xl border border-slate-200">
           <form onSubmit={handleSearch} className="space-y-4">
             {/* Bus Type Filters */}
-            <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-slate-300 mr-1">Bus Type:</span>
+                <span className="text-xs font-bold text-slate-700 mr-1">Bus Type:</span>
                 {[
                   { id: "all", label: "All Buses" },
                   { id: "ac", label: "AC Bus" },
@@ -52,10 +64,10 @@ export function HeroSearch() {
                     key={t.id}
                     type="button"
                     onClick={() => setBusType(t.id as any)}
-                    className={`text-xs px-3 py-1.5 rounded-lg transition-all font-medium ${
+                    className={`text-xs px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
                       busType === t.id
-                        ? "bg-bd-teal-500 text-bd-navy-950 font-semibold shadow-md shadow-bd-teal-500/20"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                        ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     {t.label}
@@ -63,9 +75,9 @@ export function HeroSearch() {
                 ))}
               </div>
 
-              <div className="hidden sm:flex items-center gap-3 text-xs text-slate-300">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="h-4 w-4 text-bd-teal-400" />
+              <div className="hidden sm:flex items-center gap-3 text-xs font-semibold text-slate-600">
+                <span className="flex items-center gap-1.5 text-teal-700">
+                  <ShieldCheck className="h-4 w-4 text-teal-600" />
                   Verified Inter-District Operators
                 </span>
               </div>
@@ -75,8 +87,8 @@ export function HeroSearch() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
               {/* FROM DISTRICT */}
               <div className="md:col-span-4 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-bd-teal-400" />
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-teal-600" />
                   From (Departure)
                 </label>
                 <DistrictCombobox
@@ -96,7 +108,7 @@ export function HeroSearch() {
                   size="icon"
                   onClick={handleSwap}
                   id="swap-districts-btn"
-                  className="rounded-full bg-bd-navy-800 border-white/10 hover:bg-bd-teal-500/20 hover:border-bd-teal-500/50 text-bd-teal-400 h-10 w-10 shrink-0 transition-all hover:rotate-180"
+                  className="rounded-full bg-slate-100 border-slate-300 hover:bg-teal-50 hover:border-teal-600 text-teal-700 h-10 w-10 shrink-0 transition-all hover:rotate-180 cursor-pointer"
                   title="Swap Origin & Destination"
                 >
                   <ArrowRightLeft className="h-4 w-4" />
@@ -105,8 +117,8 @@ export function HeroSearch() {
 
               {/* TO DISTRICT */}
               <div className="md:col-span-4 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-bd-emerald-400" />
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-emerald-600" />
                   To (Destination)
                 </label>
                 <DistrictCombobox
@@ -120,8 +132,8 @@ export function HeroSearch() {
 
               {/* DATE PICKER */}
               <div className="md:col-span-3 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <CalendarIcon className="h-3.5 w-3.5 text-bd-teal-400" />
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <CalendarIcon className="h-3.5 w-3.5 text-teal-600" />
                   Journey Date
                 </label>
                 <Popover>
@@ -130,20 +142,20 @@ export function HeroSearch() {
                       <Button
                         id="search-date-btn"
                         variant="outline"
-                        className="w-full justify-start bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl"
+                        className="w-full justify-start bg-slate-50 border-slate-300 text-left font-semibold text-slate-900 hover:bg-slate-100 hover:border-teal-600 h-12 rounded-xl"
                       />
                     }
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-bd-teal-400" />
+                    <CalendarIcon className="mr-2 h-4 w-4 text-teal-600" />
                     {date ? format(date, "dd MMM yyyy") : <span>Pick date</span>}
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-bd-navy-900 border-white/10 text-foreground z-50">
+                  <PopoverContent className="w-auto p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50">
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
                       disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                      className="bg-bd-navy-900 text-foreground rounded-xl"
+                      className="bg-white text-slate-900 rounded-xl"
                     />
                   </PopoverContent>
                 </Popover>
@@ -153,19 +165,19 @@ export function HeroSearch() {
             {/* Bottom Row: Passengers & Submit */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-2">
               {/* Passengers */}
-              <div className="sm:col-span-5 flex items-center gap-3 bg-bd-navy-900/50 p-2.5 rounded-xl border border-white/5">
-                <Users className="h-4 w-4 text-bd-teal-400 ml-2" />
-                <span className="text-xs font-medium text-slate-200">Passengers:</span>
+              <div className="sm:col-span-5 flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <Users className="h-4 w-4 text-teal-600 ml-2" />
+                <span className="text-xs font-bold text-slate-700">Passengers:</span>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4].map((num) => (
                     <button
                       key={num}
                       type="button"
                       onClick={() => setPassengers(num)}
-                      className={`h-8 w-8 rounded-lg text-xs font-semibold transition-all ${
+                      className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
                         passengers === num
-                          ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
-                          : "text-slate-300 hover:text-white hover:bg-white/5"
+                          ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
+                          : "text-slate-700 hover:bg-slate-200"
                       }`}
                     >
                       {num}
@@ -179,7 +191,7 @@ export function HeroSearch() {
                 <Button
                   type="submit"
                   id="search-buses-btn"
-                  className="w-full h-12 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base rounded-xl shadow-xl shadow-bd-teal-500/25 transition-all hover:shadow-bd-teal-500/40 flex items-center justify-center gap-2"
+                  className="w-full h-12 gradient-teal hover:opacity-95 text-white font-extrabold text-base rounded-xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Search className="h-5 w-5" strokeWidth={2.5} />
                   Search Buses

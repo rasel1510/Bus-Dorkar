@@ -4,3 +4,4 @@
 2. **Minimal Data & Lowest Space Complexity**: Strictly minimize data transfer over the wire so the application consumes the lowest possible MBs of mobile internet. Keep payload sizes $O(1)$ and under 300 bytes.
 3. **Lowest Time Complexity**: Ensure lowest time complexity ($O(1)$ lookups, indexed queries, zero-delay synchronous hydration) so the software renders everything instantly.
 4. **Professional & Careful Execution**: Perform all changes carefully and professionally. Enforce strict security (XSS, CSRF, ReDoS, SQLi, DoS password length limits) and maintain high code quality standards.
+5. **Simplistic & Effective UI Design (Norwegian Platforms Inspiration)**: Always keep the UI/UX design simplistic, functional, and effective. Follow Norwegian transport and marketplace standards like **finn.no**, **Skyss**, and **Hudd / Vy** (clean white layout, high contrast outdoor legibility, sharp visual hierarchy, zero fluff).

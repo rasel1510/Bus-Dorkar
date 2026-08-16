@@ -22,7 +22,10 @@ This document defines the mandatory engineering standards, performance constrain
 
 ### 4. Professional & Careful Execution Standards
 - **Zero Symptom Swallowing**: Thoroughly diagnose root causes and test all edge cases (XSS, CSRF, ReDoS, SQLi, DoS password length limits).
-- **Clean & Maintainable Code**: Write modular, fully typed, self-documenting code adhering strictly to modern Next.js App Router and React best practices.
+### 5. Simplistic & Effective Norwegian UI Design Principles
+- **Minimalist & Functional Aesthetics**: Always keep design simplistic, crisp, and highly effective.
+- **Norwegian Transport Benchmarks**: Draw UI/UX inspiration from Norwegian platforms like **finn.no**, **Skyss**, and **Hudd / Vy**.
+- **High Outdoor Legibility**: Utilize clean white backgrounds, high-contrast typography, clear hierarchy, and purpose-driven micro-interactions.
 
 ---
 

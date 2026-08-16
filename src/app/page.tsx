@@ -10,7 +10,7 @@ import { Footer } from "@/components/layout/footer";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-bd-navy-950 flex flex-col font-sans selection:bg-bd-teal-500 selection:text-bd-navy-950">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-teal-600 selection:text-white">
       <Navbar />
       <main className="flex-1">
         <HeroSearch />

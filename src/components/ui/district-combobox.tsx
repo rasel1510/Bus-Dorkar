@@ -47,38 +47,38 @@ export function DistrictCombobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between bg-bd-navy-900/80 border-white/10 text-left font-normal text-foreground hover:bg-bd-navy-800 hover:border-bd-teal-500/50 h-12 rounded-xl transition-all"
+            className="w-full justify-between bg-slate-50 border-slate-300 text-left font-semibold text-slate-900 hover:bg-slate-100 hover:border-teal-600 h-12 rounded-xl transition-all"
           />
         }
       >
         <div className="flex items-center gap-2.5 truncate">
-          <MapPin className="h-4 w-4 text-bd-teal-400 shrink-0" />
+          <MapPin className="h-4 w-4 text-teal-600 shrink-0" />
           {selectedDistrict ? (
-            <span className="truncate">
+            <span className="truncate text-slate-900 font-bold">
               {selectedDistrict.name}{" "}
-              <span className="text-xs text-muted-foreground">({selectedDistrict.nameBn})</span>
+              <span className="text-xs text-slate-500 font-medium">({selectedDistrict.nameBn})</span>
             </span>
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-slate-400 font-normal">{placeholder}</span>
           )}
         </div>
-        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-slate-500" />
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 bg-bd-navy-900 border-white/10 text-foreground shadow-2xl z-50">
-        <Command className="bg-transparent">
+      <PopoverContent className="w-[300px] p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50 rounded-2xl overflow-hidden">
+        <Command className="bg-white">
           <CommandInput
             placeholder="Search district (e.g. Dhaka, Cox's Bazar)..."
-            className="h-11 border-b border-white/10 text-foreground placeholder:text-muted-foreground"
+            className="h-11 border-b border-slate-200 text-slate-900 placeholder:text-slate-400 font-medium"
           />
           <CommandList className="max-h-[300px] overflow-y-auto p-1">
-            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+            <CommandEmpty className="py-6 text-center text-sm text-slate-500 font-medium">
               No district found.
             </CommandEmpty>
             {divisions.map((div) => (
               <CommandGroup
                 key={div.name}
                 heading={`${div.name} Division (${div.nameBn})`}
-                className="text-xs font-semibold text-bd-teal-400/80 px-2 py-1.5"
+                className="text-xs font-bold text-teal-700 px-2 py-1.5"
               >
                 {div.districts.map((district) => {
                   const isDisabled = district.id === disabledDistrictId;
@@ -92,16 +92,16 @@ export function DistrictCombobox({
                         setOpen(false);
                       }}
                       className={cn(
-                        "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm cursor-pointer transition-colors text-foreground hover:bg-bd-navy-800 hover:text-bd-teal-400",
-                        value === district.id && "bg-bd-teal-500/10 text-bd-teal-400 font-medium",
+                        "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors text-slate-800 hover:bg-slate-100 hover:text-teal-700",
+                        value === district.id && "bg-teal-50 text-teal-700 font-bold",
                         isDisabled && "opacity-40 cursor-not-allowed"
                       )}
                     >
                       <div className="flex flex-col">
                         <span>{district.name}</span>
-                        <span className="text-xs text-muted-foreground">{district.nameBn}</span>
+                        <span className="text-xs text-slate-500 font-normal">{district.nameBn}</span>
                       </div>
-                      {value === district.id && <Check className="h-4 w-4 text-bd-teal-400" />}
+                      {value === district.id && <Check className="h-4 w-4 text-teal-600" />}
                     </CommandItem>
                   );
                 })}

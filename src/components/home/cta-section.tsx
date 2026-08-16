@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button";
 
 export function CTASection() {
   return (
-    <section className="py-20 relative overflow-hidden bg-bd-navy-950">
+    <section className="py-20 relative overflow-hidden bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="glass-card rounded-3xl p-8 sm:p-12 lg:p-16 border border-white/10 relative overflow-hidden text-center gradient-border shadow-2xl">
-          {/* Background Glows */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-bd-teal-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-bd-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-800 relative overflow-hidden text-center shadow-2xl">
+          {/* Background Ambient Glows */}
+          <div className="absolute -top-24 -left-24 w-72 h-72 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-bd-teal-500/10 border border-bd-teal-500/20 text-bd-teal-400 text-xs font-semibold uppercase mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold uppercase mb-6">
             <Sparkles className="h-3.5 w-3.5" />
             Ready To Travel Across Bangladesh?
           </div>
@@ -23,7 +23,7 @@ export function CTASection() {
             Book Your Inter-District Bus Ticket <span className="gradient-text">Now</span>
           </h2>
 
-          <p className="text-slate-300 text-base sm:text-lg max-w-xl mx-auto mb-8 font-normal">
+          <p className="text-slate-300 text-base sm:text-lg max-w-xl mx-auto mb-8 font-medium">
             Join thousands of passengers traveling comfortably between Dhaka, Chattogram, Sylhet, Cox's Bazar, Rajshahi, and beyond.
           </p>
 
@@ -31,9 +31,9 @@ export function CTASection() {
             <Link href="/search?from=dhaka&to=coxs-bazar">
               <Button
                 id="cta-search-btn"
-                className="gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base h-13 px-8 rounded-xl shadow-xl shadow-bd-teal-500/25 flex items-center gap-2"
+                className="gradient-teal hover:opacity-95 text-white font-extrabold text-base h-13 px-8 rounded-xl shadow-xl shadow-teal-500/25 flex items-center gap-2 cursor-pointer"
               >
-                <Bus className="h-5 w-5 text-bd-navy-950" />
+                <Bus className="h-5 w-5 text-white" />
                 Find Buses Now
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -42,7 +42,7 @@ export function CTASection() {
               <Button
                 variant="outline"
                 id="cta-signup-btn"
-                className="h-13 px-8 text-base font-semibold border-white/10 text-white hover:bg-white/5 rounded-xl"
+                className="h-13 px-8 text-base font-bold border-slate-700 text-white hover:bg-slate-800 rounded-xl cursor-pointer"
               >
                 Create Free Account
               </Button>

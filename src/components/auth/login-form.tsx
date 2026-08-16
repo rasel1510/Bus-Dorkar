@@ -83,35 +83,35 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl gradient-border space-y-6">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Welcome <span className="gradient-text">Back</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm font-medium text-slate-600">
             Sign in to manage your bookings & tickets
           </p>
         </div>
 
         {/* Success Banner */}
         {successMsg && (
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* Role Selector Tabs */}
-        <div className="bg-bd-navy-900/80 p-1 rounded-xl border border-white/5 grid grid-cols-3 gap-1">
+        <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 grid grid-cols-3 gap-1">
           {[
             { id: "passenger", label: "Passenger" },
             { id: "operator", label: "Operator" },
@@ -121,10 +121,10 @@ export function LoginForm() {
               key={tab.id}
               type="button"
               onClick={() => setRole(tab.id as any)}
-              className={`py-2 text-xs font-semibold rounded-lg transition-all ${
+              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 role === tab.id
-                  ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-teal-600 text-white shadow-md"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {tab.label}
@@ -135,14 +135,14 @@ export function LoginForm() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Method toggle: Phone vs Email */}
-          <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-            <span className="font-medium text-slate-300">Login with:</span>
+          <div className="flex items-center justify-between text-xs text-slate-600 px-1">
+            <span className="font-semibold text-slate-700">Login with:</span>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setLoginMethod("phone")}
-                className={`font-semibold transition-colors ${
-                  loginMethod === "phone" ? "text-bd-teal-400 underline" : "hover:text-white"
+                className={`font-bold transition-colors cursor-pointer ${
+                  loginMethod === "phone" ? "text-teal-700 underline" : "hover:text-slate-900"
                 }`}
               >
                 Mobile (+880)
@@ -151,8 +151,8 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => setLoginMethod("email")}
-                className={`font-semibold transition-colors ${
-                  loginMethod === "email" ? "text-bd-teal-400 underline" : "hover:text-white"
+                className={`font-bold transition-colors cursor-pointer ${
+                  loginMethod === "email" ? "text-teal-700 underline" : "hover:text-slate-900"
                 }`}
               >
                 Email Address
@@ -162,15 +162,15 @@ export function LoginForm() {
 
           {/* Identifier Input */}
           <div className="space-y-1.5">
-            <Label htmlFor="identifier" className="text-xs text-slate-300 font-semibold">
+            <Label htmlFor="identifier" className="text-xs text-slate-800 font-bold">
               {loginMethod === "phone" ? "Mobile Number (+880)" : "Email Address"}
             </Label>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                 {loginMethod === "phone" ? (
-                  <Phone className="h-4 w-4 text-bd-teal-400" />
+                  <Phone className="h-4 w-4 text-teal-600" />
                 ) : (
-                  <Mail className="h-4 w-4 text-bd-teal-400" />
+                  <Mail className="h-4 w-4 text-teal-600" />
                 )}
               </div>
               <Input
@@ -182,7 +182,7 @@ export function LoginForm() {
                 value={formData.identifier}
                 onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                 required
-                className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                className="pl-10 h-12 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 font-medium"
               />
             </div>
           </div>
@@ -190,19 +190,19 @@ export function LoginForm() {
           {/* Password Input */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-xs text-slate-300 font-semibold">
+              <Label htmlFor="password" className="text-xs text-slate-800 font-bold">
                 Password
               </Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-bd-teal-400 hover:text-bd-teal-300 transition-colors"
+                className="text-xs text-teal-700 font-bold hover:underline transition-colors"
               >
                 Forgot Password?
               </Link>
             </div>
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                <Lock className="h-4 w-4 text-bd-teal-400" />
+                <Lock className="h-4 w-4 text-teal-600" />
               </div>
               <Input
                 id="password"
@@ -211,12 +211,12 @@ export function LoginForm() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                className="pl-10 pr-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                className="pl-10 pr-10 h-12 bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-teal-600 focus:ring-teal-600/20 font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -231,9 +231,9 @@ export function LoginForm() {
               onCheckedChange={(checked) =>
                 setFormData({ ...formData, rememberMe: checked as boolean })
               }
-              className="border-white/20 data-[state=checked]:bg-bd-teal-500 data-[state=checked]:text-bd-navy-950"
+              className="border-slate-300 data-[state=checked]:bg-teal-600 data-[state=checked]:text-white"
             />
-            <Label htmlFor="remember" className="text-xs font-normal text-slate-400 cursor-pointer">
+            <Label htmlFor="remember" className="text-xs font-semibold text-slate-600 cursor-pointer">
               Remember me on this device
             </Label>
           </div>
@@ -243,7 +243,7 @@ export function LoginForm() {
             type="submit"
             disabled={isLoading}
             id="login-submit-btn"
-            className="w-full h-12 gradient-teal hover:opacity-95 text-bd-navy-950 font-bold text-base rounded-xl shadow-lg shadow-bd-teal-500/25 transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full h-12 gradient-teal hover:opacity-95 text-white font-extrabold text-base rounded-xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
           >
             {isLoading ? (
               <span>Signing In...</span>
@@ -257,9 +257,9 @@ export function LoginForm() {
         </form>
 
         {/* Footer link */}
-        <div className="text-center text-xs text-slate-400 pt-2">
+        <div className="text-center text-xs text-slate-600 font-medium pt-2">
           Don't have an account?{" "}
-          <Link href="/signup" className="text-bd-teal-400 font-bold hover:underline">
+          <Link href="/signup" className="text-teal-700 font-extrabold hover:underline">
             Create Account
           </Link>
         </div>
