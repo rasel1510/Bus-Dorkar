@@ -19,7 +19,7 @@ export function StatsBar() {
             <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {stat.value}
             </span>
-            <span className="text-xs sm:text-sm font-medium text-slate-400">
+            <span className="text-xs sm:text-sm font-medium text-slate-300">
               {stat.label}
             </span>
           </div>

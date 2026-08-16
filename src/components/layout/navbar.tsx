@@ -116,11 +116,11 @@ export function Navbar() {
                   <span className="text-xs font-bold text-white max-w-[130px] truncate leading-tight group-hover:text-bd-teal-400 transition-colors">
                     {user.name}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium capitalize">
+                  <span className="text-[10px] text-slate-300 font-medium capitalize">
                     {user.role.toLowerCase().replace("_", " ")}
                   </span>
                 </div>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-400 group-hover:text-white transition-transform" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-300 group-hover:text-white transition-transform" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent

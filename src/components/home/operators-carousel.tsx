@@ -12,6 +12,8 @@ const operators = [
   { name: "Saintmartin Paribahan", rating: 4.9, reviews: "1.2k", busTypes: "MAN AC • Luxury", logoBg: "from-cyan-600 to-teal-900" },
 ];
 
+
+
 export function OperatorsCarousel() {
   return (
     <section className="py-20 bg-bd-navy-900/40 relative border-t border-white/5">
@@ -24,7 +26,7 @@ export function OperatorsCarousel() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
             Trusted Bus <span className="gradient-text">Operators</span>
           </h2>
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-300 text-sm">
             Partnering with Bangladesh's premier inter-district transport companies for maximum safety and comfort.
           </p>
         </div>
@@ -51,7 +53,7 @@ export function OperatorsCarousel() {
                     <ShieldCheck className="h-4 w-4 text-bd-teal-400 shrink-0" />
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 truncate mb-2">
+                <p className="text-xs text-slate-300 truncate mb-2">
                   {op.busTypes}
                 </p>
                 <div className="flex items-center gap-2 text-xs">
@@ -59,7 +61,7 @@ export function OperatorsCarousel() {
                     <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                     {op.rating}
                   </span>
-                  <span className="text-slate-400">({op.reviews} reviews)</span>
+                  <span className="text-slate-300">({op.reviews} reviews)</span>
                 </div>
               </div>
             </div>
@@ -69,3 +71,24 @@ export function OperatorsCarousel() {
     </section>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,13 +4,13 @@ import { Logo } from "@/components/ui/logo";
 
 export function Footer() {
   return (
-    <footer className="bg-bd-navy-950 border-t border-white/5 text-slate-400 text-sm">
+    <footer className="bg-bd-navy-950 border-t border-white/5 text-slate-300 text-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <Logo textSize="text-2xl" />
-            <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+            <p className="text-xs text-slate-300 max-w-sm leading-relaxed">
               Bus Dorkar is Bangladesh's dedicated inter-district bus discovery, timetable, and ticketing management platform. Real-time seat reservation across all 64 districts.
             </p>
             <div className="pt-2 flex items-center gap-4 text-xs font-medium text-bd-teal-400">
@@ -80,9 +80,9 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
           <p>© 2026 Bus Dorkar. All rights reserved. Inter-District Bus Transportation Platform Bangladesh.</p>
-          <div className="flex items-center gap-1 text-slate-400">
+          <div className="flex items-center gap-1 text-slate-300">
             <span>Made with</span>
             <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" />
             <span>for Bangladesh 🇧🇩</span>

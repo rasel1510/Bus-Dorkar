@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <main className="my-auto py-2 sm:py-4 z-10 flex justify-center items-center">{children}</main>
 
       {/* Auth Footer */}
-      <footer className="text-center text-xs text-slate-500 z-10 shrink-0 py-1">
+      <footer className="text-center text-xs text-slate-400 z-10 shrink-0 py-1">
         <p>© 2026 Bus Dorkar. Secure Inter-District Bus Ticketing System Bangladesh.</p>
       </footer>
     </div>

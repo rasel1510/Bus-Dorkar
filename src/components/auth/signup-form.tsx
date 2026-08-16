@@ -194,7 +194,7 @@ export function SignUpForm() {
                   setFormData({ ...formData, fullName: e.target.value });
                 }}
                 required
-                className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
               />
             </div>
           </div>
@@ -219,7 +219,7 @@ export function SignUpForm() {
                     setErrorMsg(null);
                     setFormData({ ...formData, email: e.target.value });
                   }}
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
               </div>
             </div>
@@ -243,7 +243,7 @@ export function SignUpForm() {
                     setFormData({ ...formData, phone: e.target.value });
                   }}
                   required
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
               </div>
             </div>
@@ -270,7 +270,7 @@ export function SignUpForm() {
                     setFormData({ ...formData, password: e.target.value });
                   }}
                   required
-                  className="pl-10 pr-9 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 pr-9 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
                 <button
                   type="button"
@@ -301,7 +301,7 @@ export function SignUpForm() {
                     setFormData({ ...formData, confirmPassword: e.target.value });
                   }}
                   required
-                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
+                  className="pl-10 h-11 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20 text-xs sm:text-sm"
                 />
               </div>
             </div>

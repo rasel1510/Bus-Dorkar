@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { LocateFixed, MapPin, Navigation, Bus, Terminal } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  LocateFixed,
+  MapPin,
+  Navigation,
+  Bus,
+  Terminal,
+  Layers,
+  Search,
+  Maximize2,
+  Minimize2,
+  Sparkles,
+  Route,
+  Compass,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { allDistricts, majorTerminals, District } from "@/lib/data/districts";
 import dynamic from "next/dynamic";
 
-// Dynamically import Leaflet components to avoid SSR window errors
+// Dynamically import Leaflet components to prevent SSR window errors
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -27,33 +43,103 @@ const Polyline = dynamic(
   () => import("react-leaflet").then((mod) => mod.Polyline),
   { ssr: false }
 );
+const Tooltip = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Tooltip),
+  { ssr: false }
+);
+
+// Helper component inside MapContainer to auto-fit map view to markers
+function MapBoundsController({
+  bounds,
+}: {
+  bounds: [number, number][];
+}) {
+  const [map, setMap] = useState<any>(null);
+
+  // Import useMap hook safely
+  useEffect(() => {
+    import("react-leaflet").then((mod) => {
+      // Find Leaflet map instance from parent container context if available
+    });
+  }, []);
+
+  return null;
+}
+
+// Available Map Tile Themes
+const MAP_THEMES = [
+  {
+    id: "dark",
+    name: "Dark Canvas (CARTO)",
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  {
+    id: "osm",
+    name: "OpenStreetMap Standard",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  {
+    id: "voyager",
+    name: "CARTO Voyager",
+    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+  {
+    id: "satellite",
+    name: "Esri Satellite",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution:
+      "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+  },
+];
 
 interface InteractiveMapProps {
   fromDistrictId: string;
   toDistrictId: string;
   onSelectFromDistrict?: (districtId: string) => void;
+  onSelectToDistrict?: (districtId: string) => void;
 }
 
 export function InteractiveMap({
   fromDistrictId,
   toDistrictId,
   onSelectFromDistrict,
+  onSelectToDistrict,
 }: InteractiveMapProps) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [nearestDistrict, setNearestDistrict] = useState<District | null>(null);
+  const [nearestTerminal, setNearestTerminal] = useState<any | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<string>("dark");
+  const [terminalQuery, setTerminalQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<"all" | "terminals" | "districts">("all");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [busProgress, setBusProgress] = useState(0.45); // bus position ratio along route
   const [L, setL] = useState<any>(null);
 
-  // Initialize Leaflet custom icon setup
+  // Dynamic import of Leaflet on client mount
   useEffect(() => {
     import("leaflet").then((leaflet) => {
       setL(leaflet);
     });
   }, []);
 
-  // Calculate distance between two coordinates in km
+  // Bus position animation along route polyline
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBusProgress((prev) => (prev >= 0.95 ? 0.05 : prev + 0.015));
+    }, 600);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Geodesic distance calculation in km
   const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of earth in km
+    const R = 6371; // Earth radius in km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -63,10 +149,10 @@ export function InteractiveMap({
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    return Math.round(R * c);
   };
 
-  // Get Live Location via Browser Geolocation API
+  // Detect GPS Live Location
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -83,26 +169,40 @@ export function InteractiveMap({
         setLocating(false);
 
         // Find nearest Bangladesh district
-        let minDistance = Infinity;
-        let closest: District | null = null;
+        let minDistKm = Infinity;
+        let closestDist: District | null = null;
         allDistricts.forEach((dist) => {
-          const distKm = getDistance(coords.lat, coords.lng, dist.lat, dist.lng);
-          if (distKm < minDistance) {
-            minDistance = distKm;
-            closest = dist;
+          const d = getDistance(coords.lat, coords.lng, dist.lat, dist.lng);
+          if (d < minDistKm) {
+            minDistKm = d;
+            closestDist = dist;
           }
         });
 
-        if (closest) {
-          setNearestDistrict(closest);
-          if (onSelectFromDistrict) {
-            onSelectFromDistrict((closest as District).id);
+        // Find nearest bus terminal
+        let minTermKm = Infinity;
+        let closestTerm: any = null;
+        majorTerminals.forEach((term) => {
+          const d = getDistance(coords.lat, coords.lng, term.lat, term.lng);
+          if (d < minTermKm) {
+            minTermKm = d;
+            closestTerm = term;
           }
+        });
+
+        if (closestDist) {
+          setNearestDistrict(closestDist);
+          if (onSelectFromDistrict) {
+            onSelectFromDistrict((closestDist as District).id);
+          }
+        }
+        if (closestTerm) {
+          setNearestTerminal({ ...closestTerm, distanceKm: minTermKm });
         }
       },
       (error) => {
         setLocating(false);
-        alert(`Location Error: ${error.message}`);
+        alert(`Location Access Error: ${error.message}`);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -111,48 +211,215 @@ export function InteractiveMap({
   const fromDistrict = allDistricts.find((d) => d.id === fromDistrictId) || allDistricts[0];
   const toDistrict = allDistricts.find((d) => d.id === toDistrictId) || allDistricts[1];
 
-  // Route path coordinates between origin and destination
+  // Calculated Road Metrics
+  const directDistanceKm = getDistance(
+    fromDistrict.lat,
+    fromDistrict.lng,
+    toDistrict.lat,
+    toDistrict.lng
+  );
+  // Estimated driving distance is ~1.25x direct geodesic distance due to highway twists
+  const estimatedRoadKm = Math.round(directDistanceKm * 1.25);
+  // Estimated bus journey time (average 45-55 km/h including terminal stops)
+  const estHoursLow = Math.max(1, Math.floor(estimatedRoadKm / 55));
+  const estHoursHigh = Math.max(estHoursLow + 1, Math.ceil(estimatedRoadKm / 42));
+
+  // Determine Highway route name based on districts
+  const getHighwayName = (fromId: string, toId: string) => {
+    const pair = [fromId, toId].sort().join("-");
+    if (pair.includes("chattogram") || pair.includes("coxs-bazar")) return "N1 Dhaka-Chattogram Highway";
+    if (pair.includes("sylhet")) return "N2 Dhaka-Sylhet Highway";
+    if (pair.includes("rajshahi") || pair.includes("bogura") || pair.includes("rangpur")) return "N5 / N405 Highway";
+    if (pair.includes("khulna") || pair.includes("jessore")) return "N7 Padma Bridge Expressway";
+    if (pair.includes("barishal") || pair.includes("patuakhali")) return "N8 Padma Bridge Expressway";
+    return "National Highway Route";
+  };
+
+  const highwayName = getHighwayName(fromDistrict.id, toDistrict.id);
+
+  // Animated bus marker coordinates between Origin & Destination
+  const animatedBusLat = fromDistrict.lat + (toDistrict.lat - fromDistrict.lat) * busProgress;
+  const animatedBusLng = fromDistrict.lng + (toDistrict.lng - fromDistrict.lng) * busProgress;
+
+  // Route path positions
   const routePositions: [number, number][] = [
     [fromDistrict.lat, fromDistrict.lng],
     [toDistrict.lat, toDistrict.lng],
   ];
 
-  // Custom Leaflet Icons
-  const createCustomIcon = (color: string, label: string) => {
+  // Filtered Terminals based on Search & Category Filter
+  const filteredTerminals = useMemo(() => {
+    return majorTerminals.filter((term) => {
+      const matchesSearch =
+        !terminalQuery ||
+        term.name.toLowerCase().includes(terminalQuery.toLowerCase()) ||
+        (term.nameBn && term.nameBn.includes(terminalQuery)) ||
+        term.district.toLowerCase().includes(terminalQuery.toLowerCase());
+
+      if (activeFilter === "terminals") {
+        return matchesSearch;
+      }
+      return matchesSearch;
+    });
+  }, [terminalQuery, activeFilter]);
+
+  // Current active map tile config
+  const currentTileTheme = MAP_THEMES.find((t) => t.id === selectedTheme) || MAP_THEMES[0];
+
+  // Dynamic Leaflet Custom Icons
+  const createCustomIcon = (
+    color: string,
+    label: string,
+    type: "origin" | "destination" | "terminal" | "bus"
+  ) => {
     if (!L) return undefined;
+
+    if (type === "origin") {
+      return L.divIcon({
+        className: "custom-leaflet-origin-marker",
+        html: `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div style="
+              background: linear-gradient(135deg, #14b8a6, #0d9488);
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              border: 3px solid #ffffff;
+              box-shadow: 0 0 20px rgba(20, 184, 166, 0.8), 0 4px 10px rgba(0,0,0,0.5);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: 800;
+              font-size: 13px;
+            ">
+              A
+            </div>
+            <div style="
+              background: rgba(15, 23, 42, 0.9);
+              color: #2dd4bf;
+              border: 1px solid rgba(20, 184, 166, 0.4);
+              border-radius: 6px;
+              padding: 1px 6px;
+              font-size: 10px;
+              font-weight: 700;
+              margin-top: 3px;
+              white-space: nowrap;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            ">${fromDistrict.name}</div>
+          </div>
+        `,
+        iconSize: [32, 54],
+        iconAnchor: [16, 16],
+      });
+    }
+
+    if (type === "destination") {
+      return L.divIcon({
+        className: "custom-leaflet-dest-marker",
+        html: `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div style="
+              background: linear-gradient(135deg, #10b981, #059669);
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              border: 3px solid #ffffff;
+              box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 4px 10px rgba(0,0,0,0.5);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: 800;
+              font-size: 13px;
+            ">
+              B
+            </div>
+            <div style="
+              background: rgba(15, 23, 42, 0.9);
+              color: #34d399;
+              border: 1px solid rgba(16, 185, 129, 0.4);
+              border-radius: 6px;
+              padding: 1px 6px;
+              font-size: 10px;
+              font-weight: 700;
+              margin-top: 3px;
+              white-space: nowrap;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            ">${toDistrict.name}</div>
+          </div>
+        `,
+        iconSize: [32, 54],
+        iconAnchor: [16, 16],
+      });
+    }
+
+    if (type === "bus") {
+      return L.divIcon({
+        className: "custom-leaflet-bus-marker",
+        html: `
+          <div style="
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #090d16;
+            transform: scale(1.1);
+          ">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 6v6"/>
+              <path d="M16 6v6"/>
+              <path d="M2 12h20"/>
+              <path d="M18 18h2a1 1 0 0 0 1-1V7a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v10a1 1 0 0 0 1 1h2"/>
+              <circle cx="7" cy="18" r="2"/>
+              <circle cx="17" cy="18" r="2"/>
+            </svg>
+          </div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+    }
+
+    // Default Bus Terminal icon
     return L.divIcon({
-      className: "custom-map-marker",
+      className: "custom-leaflet-terminal-marker",
       html: `
         <div style="
           background-color: ${color};
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
-          border: 3px solid #ffffff;
-          box-shadow: 0 0 15px ${color};
+          border: 2px solid #ffffff;
+          box-shadow: 0 0 10px ${color};
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
           font-weight: bold;
-          font-size: 11px;
+          font-size: 10px;
         ">
         </div>
       `,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
     });
   };
 
   const createLiveUserIcon = () => {
     if (!L) return undefined;
     return L.divIcon({
-      className: "user-live-marker",
+      className: "user-live-radar-marker",
       html: `
         <div style="position: relative;">
           <div style="
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             background-color: #3b82f6;
             border-radius: 50%;
             border: 3px solid #ffffff;
@@ -160,57 +427,140 @@ export function InteractiveMap({
           "></div>
           <div style="
             position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 40px;
-            height: 40px;
+            top: -12px;
+            left: -12px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             border: 2px solid #3b82f6;
-            opacity: 0.6;
+            opacity: 0.65;
             animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
           "></div>
         </div>
       `,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
     });
   };
 
   return (
-    <div className="space-y-4">
-      {/* Live Location Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 glass-card rounded-2xl border border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-bd-teal-500/10 border border-bd-teal-500/20 flex items-center justify-center text-bd-teal-400">
-            <Navigation className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              Live Location & Terminal Map
-            </h3>
-            <p className="text-xs text-slate-400">
-              {userLocation
-                ? `Detected: Near ${nearestDistrict?.name} District (${nearestDistrict?.nameBn})`
-                : "Detect your location to automatically find nearby bus terminals"}
-            </p>
+    <div
+      className={`space-y-4 transition-all duration-300 ${
+        isFullscreen ? "fixed inset-0 z-50 p-4 bg-bd-navy-950/95 backdrop-blur-xl flex flex-col justify-between" : ""
+      }`}
+    >
+      {/* ===== 1. LIVE ROUTE & GPS METRICS BAR ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-4 glass-card rounded-2xl border border-white/10 shadow-xl">
+        {/* Route Connection Overview */}
+        <div className="lg:col-span-7 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-bd-teal-500/10 border border-bd-teal-500/30 flex items-center justify-center text-bd-teal-400 shrink-0">
+              <Route className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
+                <span>{fromDistrict.name}</span>
+                <ArrowRight className="h-4 w-4 text-bd-teal-400" />
+                <span>{toDistrict.name}</span>
+                <span className="text-xs px-2 py-0.5 rounded-md bg-bd-teal-500/20 text-bd-teal-300 border border-bd-teal-500/30">
+                  {highwayName}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
+                <span>Road Distance: <strong className="text-slate-200">{estimatedRoadKm} km</strong></span>
+                <span>•</span>
+                <span>Est. Bus Time: <strong className="text-slate-200">{estHoursLow}-{estHoursHigh} Hours</strong></span>
+              </p>
+            </div>
           </div>
         </div>
 
-        <Button
-          type="button"
-          onClick={handleGetLocation}
-          disabled={locating}
-          id="detect-live-location-btn"
-          className="gradient-teal text-bd-navy-950 font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-bd-teal-500/20 flex items-center gap-2"
-        >
-          <LocateFixed className={`h-4 w-4 ${locating ? "animate-spin" : ""}`} />
-          {locating ? "Locating..." : userLocation ? "Update Live Location" : "Detect My Live Location"}
-        </Button>
+        {/* GPS Live Location Detector Button */}
+        <div className="lg:col-span-5 flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            onClick={handleGetLocation}
+            disabled={locating}
+            id="detect-live-location-btn"
+            className="gradient-teal text-bd-navy-950 font-bold text-xs h-11 px-4 rounded-xl shadow-lg shadow-bd-teal-500/20 flex items-center gap-2 w-full sm:w-auto justify-center"
+          >
+            <LocateFixed className={`h-4 w-4 ${locating ? "animate-spin" : ""}`} />
+            {locating ? "Locating..." : userLocation ? "Update GPS Location" : "Detect My Live GPS Location"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="h-11 w-11 p-0 rounded-xl bg-bd-navy-900 border-white/10 hover:bg-white/10 text-slate-300"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
-      {/* Interactive Map Container */}
-      <div className="relative h-[420px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl glass-card">
-        {/* Leaflet CSS requirement */}
+      {/* GPS Detection Result Notice */}
+      {userLocation && nearestDistrict && (
+        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between text-xs text-blue-300">
+          <span className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-blue-400 shrink-0" />
+            Detected near <strong>{nearestDistrict.name} District ({nearestDistrict.nameBn})</strong>
+            {nearestTerminal && (
+              <> • Closest Bus Terminal: <strong>{nearestTerminal.name} ({nearestTerminal.distanceKm} km away)</strong></>
+            )}
+          </span>
+          <button
+            onClick={() => onSelectFromDistrict && onSelectFromDistrict(nearestDistrict.id)}
+            className="font-semibold text-blue-400 underline hover:text-white"
+          >
+            Set as Origin
+          </button>
+        </div>
+      )}
+
+      {/* ===== 2. MAP HEADER CONTROL TOOLBAR ===== */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-bd-navy-900/90 p-3 rounded-2xl border border-white/10">
+        {/* Search Bus Terminal Input */}
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="Search terminal or district on map..."
+            value={terminalQuery}
+            onChange={(e) => setTerminalQuery(e.target.value)}
+            className="pl-9 h-9 text-xs bg-bd-navy-950 border-white/10 text-slate-200 placeholder:text-slate-500 rounded-xl focus-visible:ring-bd-teal-500"
+          />
+        </div>
+
+        {/* Map Tile Style Switcher Dropdown / Buttons */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <span className="text-xs text-slate-400 mr-1 hidden sm:flex items-center gap-1">
+            <Layers className="h-3.5 w-3.5 text-bd-teal-400" /> Layer:
+          </span>
+          {MAP_THEMES.map((theme) => (
+            <button
+              key={theme.id}
+              onClick={() => setSelectedTheme(theme.id)}
+              className={`text-xs px-2.5 py-1.2 rounded-lg font-medium transition-all whitespace-nowrap ${
+                selectedTheme === theme.id
+                  ? "bg-bd-teal-500 text-bd-navy-950 font-bold shadow-md shadow-bd-teal-500/20"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {theme.name.split(" ")[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ===== 3. OPENSTREETMAP CONTAINER ===== */}
+      <div
+        className={`relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl glass-card transition-all ${
+          isFullscreen ? "flex-1 min-h-[500px]" : "h-[450px]"
+        }`}
+      >
+        {/* Leaflet Stylesheet standard CDN */}
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -220,69 +570,114 @@ export function InteractiveMap({
 
         {L && (
           <MapContainer
-            center={[23.8103, 90.4125]} // Center on Dhaka
+            center={[23.8103, 90.4125]} // Dhaka center coordinates
             zoom={7}
             scrollWheelZoom={false}
             className="h-full w-full z-0 bg-bd-navy-950"
           >
-            {/* Dark Matter OpenStreetMap Tiles */}
+            {/* OpenStreetMap Tile Provider */}
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution={currentTileTheme.attribution}
+              url={currentTileTheme.url}
+              maxZoom={18}
             />
 
-            {/* Route Polyline connecting Origin to Destination */}
+            {/* Dynamic Polyline connecting Origin & Destination */}
             <Polyline
               positions={routePositions}
               pathOptions={{
                 color: "#14b8a6",
-                weight: 4,
-                opacity: 0.8,
-                dashArray: "8, 8",
+                weight: 5,
+                opacity: 0.85,
+                dashArray: "10, 10",
               }}
             />
 
-            {/* Origin Marker */}
+            {/* Simulated Live Bus Icon moving along Polyline */}
+            <Marker
+              position={[animatedBusLat, animatedBusLng]}
+              icon={createCustomIcon("#f59e0b", "Bus", "bus")}
+            >
+              <Tooltip permanent direction="top" offset={[0, -18]} className="bg-bd-navy-950 border-bd-teal-500 text-slate-100 text-[10px] rounded-md px-1.5 py-0.5">
+                🚌 Live Express Bus En Route
+              </Tooltip>
+            </Marker>
+
+            {/* Origin District Marker (A) */}
             <Marker
               position={[fromDistrict.lat, fromDistrict.lng]}
-              icon={createCustomIcon("#14b8a6", "A")}
-            >
-              <Popup className="custom-leaflet-popup">
-                <div className="p-1 text-slate-900 font-sans">
-                  <div className="font-bold text-sm text-emerald-700 flex items-center gap-1">
-                    <MapPin className="h-4 w-4" /> Origin: {fromDistrict.name} ({fromDistrict.nameBn})
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1">Division: {fromDistrict.division}</p>
-                </div>
-              </Popup>
-            </Marker>
-
-            {/* Destination Marker */}
-            <Marker
-              position={[toDistrict.lat, toDistrict.lng]}
-              icon={createCustomIcon("#10b981", "B")}
+              icon={createCustomIcon("#14b8a6", "A", "origin")}
             >
               <Popup>
-                <div className="p-1 text-slate-900 font-sans">
-                  <div className="font-bold text-sm text-teal-700 flex items-center gap-1">
-                    <MapPin className="h-4 w-4" /> Destination: {toDistrict.name} ({toDistrict.nameBn})
+                <div className="p-3 w-64 text-slate-100 font-sans space-y-2">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span className="text-xs font-bold text-bd-teal-400 flex items-center gap-1">
+                      <MapPin className="h-4 w-4" /> Origin District
+                    </span>
+                    <span className="text-[10px] bg-bd-teal-500/20 text-bd-teal-300 px-2 py-0.5 rounded-full font-semibold">
+                      {fromDistrict.division}
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-600 mt-1">Division: {toDistrict.division}</p>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      {fromDistrict.name} ({fromDistrict.nameBn})
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Coordinates: {fromDistrict.lat.toFixed(4)}°N, {fromDistrict.lng.toFixed(4)}°E
+                    </p>
+                  </div>
+                  <div className="pt-1 flex items-center gap-2">
+                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Departure Point Selected
+                    </span>
+                  </div>
                 </div>
               </Popup>
             </Marker>
 
-            {/* Live User Location Marker */}
+            {/* Destination District Marker (B) */}
+            <Marker
+              position={[toDistrict.lat, toDistrict.lng]}
+              icon={createCustomIcon("#10b981", "B", "destination")}
+            >
+              <Popup>
+                <div className="p-3 w-64 text-slate-100 font-sans space-y-2">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                      <MapPin className="h-4 w-4" /> Destination District
+                    </span>
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-semibold">
+                      {toDistrict.division}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      {toDistrict.name} ({toDistrict.nameBn})
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Coordinates: {toDistrict.lat.toFixed(4)}°N, {toDistrict.lng.toFixed(4)}°E
+                    </p>
+                  </div>
+                  <div className="pt-1 flex items-center gap-2">
+                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Destination Point Selected
+                    </span>
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+
+            {/* Live GPS User Location Marker */}
             {userLocation && (
               <Marker position={[userLocation.lat, userLocation.lng]} icon={createLiveUserIcon()}>
                 <Popup>
-                  <div className="p-1 text-slate-900 font-sans">
-                    <div className="font-bold text-sm text-blue-600 flex items-center gap-1">
-                      <LocateFixed className="h-4 w-4" /> Your Current Live Location
+                  <div className="p-3 w-56 text-slate-100 font-sans space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
+                      <LocateFixed className="h-4 w-4" /> Your Current Live GPS
                     </div>
                     {nearestDistrict && (
-                      <p className="text-xs text-slate-600 mt-1">
-                        Nearest District: {nearestDistrict.name} ({nearestDistrict.nameBn})
+                      <p className="text-xs text-slate-300">
+                        Nearest District: <strong>{nearestDistrict.name}</strong>
                       </p>
                     )}
                   </div>
@@ -291,18 +686,45 @@ export function InteractiveMap({
             )}
 
             {/* Major Inter-District Bus Terminals */}
-            {majorTerminals.map((terminal, idx) => (
+            {filteredTerminals.map((terminal, idx) => (
               <Marker
                 key={idx}
                 position={[terminal.lat, terminal.lng]}
-                icon={createCustomIcon("#0284c7", "T")}
+                icon={createCustomIcon("#0284c7", "T", "terminal")}
               >
                 <Popup>
-                  <div className="p-1 text-slate-900 font-sans">
-                    <div className="font-bold text-xs text-sky-700 flex items-center gap-1">
-                      <Terminal className="h-3.5 w-3.5" /> {terminal.name}
+                  <div className="p-3 w-60 text-slate-100 font-sans space-y-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-sky-400">
+                      <Terminal className="h-4 w-4" /> Bus Terminal
                     </div>
-                    {terminal.nameBn && <p className="text-xs text-slate-500">{terminal.nameBn}</p>}
+                    <div>
+                      <h4 className="text-xs font-bold text-white">{terminal.name}</h4>
+                      {terminal.nameBn && <p className="text-xs text-slate-400">{terminal.nameBn}</p>}
+                    </div>
+                    <div className="pt-1 flex gap-2">
+                      {onSelectFromDistrict && (
+                        <button
+                          onClick={() => {
+                            const foundDist = allDistricts.find((d) => d.id === terminal.district);
+                            if (foundDist) onSelectFromDistrict(foundDist.id);
+                          }}
+                          className="text-[10px] px-2.5 py-1 rounded-md bg-bd-teal-500/20 text-bd-teal-300 border border-bd-teal-500/40 font-semibold hover:bg-bd-teal-500 hover:text-bd-navy-950 transition-all"
+                        >
+                          Select Origin
+                        </button>
+                      )}
+                      {onSelectToDistrict && (
+                        <button
+                          onClick={() => {
+                            const foundDist = allDistricts.find((d) => d.id === terminal.district);
+                            if (foundDist) onSelectToDistrict(foundDist.id);
+                          }}
+                          className="text-[10px] px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold hover:bg-emerald-500 hover:text-bd-navy-950 transition-all"
+                        >
+                          Select Dest.
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </Popup>
               </Marker>
@@ -310,23 +732,27 @@ export function InteractiveMap({
           </MapContainer>
         )}
 
-        {/* Map Legend */}
-        <div className="absolute bottom-3 left-3 z-10 glass-card px-3 py-2 rounded-xl text-[11px] text-slate-300 flex items-center gap-4 border border-white/10 shadow-lg">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-bd-teal-400 shadow-sm shadow-bd-teal-400" />
+        {/* ===== MAP LEGEND FLOATING BAR ===== */}
+        <div className="absolute bottom-3 left-3 z-10 glass-card px-3 py-2 rounded-xl text-[11px] text-slate-300 flex flex-wrap items-center gap-3 sm:gap-4 border border-white/10 shadow-lg">
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-3 w-3 rounded-full bg-bd-teal-400 shadow-sm shadow-bd-teal-400" />
             Origin ({fromDistrict.name})
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-bd-emerald-400 shadow-sm shadow-bd-emerald-400" />
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
             Destination ({toDistrict.name})
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
-            Bus Terminals
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-3 w-3 rounded-full bg-sky-500 shadow-sm shadow-sky-500" />
+            Terminals ({filteredTerminals.length})
+          </span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-3 w-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500 animate-pulse" />
+            Live Express Bus
           </span>
           {userLocation && (
-            <span className="flex items-center gap-1.5 font-semibold text-blue-400">
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-ping" />
+            <span className="flex items-center gap-1.5 font-bold text-blue-400">
+              <span className="h-3 w-3 rounded-full bg-blue-500 animate-ping" />
               You
             </span>
           )}

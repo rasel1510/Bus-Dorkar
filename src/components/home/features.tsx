@@ -53,7 +53,7 @@ export function Features() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
             Why Choose <span className="gradient-text">Bus Dorkar</span>?
           </h2>
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-300 text-sm">
             Designed specifically for inter-district transportation management, seat safety, and real-world Bangladesh usage.
           </p>
         </div>
@@ -71,7 +71,7 @@ export function Features() {
               <h3 className="text-lg font-bold text-white mb-2 group-hover:text-bd-teal-400 transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-300 text-xs leading-relaxed">
                 {feature.description}
               </p>
             </div>

@@ -182,7 +182,7 @@ export function LoginForm() {
                 value={formData.identifier}
                 onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                 required
-                className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                className="pl-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
               />
             </div>
           </div>
@@ -211,7 +211,7 @@ export function LoginForm() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                className="pl-10 pr-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-500 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
+                className="pl-10 pr-10 h-12 bg-bd-navy-900/80 border-white/10 text-white placeholder:text-slate-400 rounded-xl focus:border-bd-teal-500 focus:ring-bd-teal-500/20"
               />
               <button
                 type="button"

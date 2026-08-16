@@ -41,7 +41,7 @@ export function HowItWorks() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
             How <span className="gradient-text">Bus Dorkar</span> Works
           </h2>
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-300 text-sm">
             Book your inter-district bus ticket in less than 2 minutes.
           </p>
         </div>
@@ -58,7 +58,7 @@ export function HowItWorks() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-teal text-bd-navy-950 shadow-lg shadow-bd-teal-500/20">
                   <item.icon className="h-6 w-6" strokeWidth={2.2} />
                 </div>
-                <span className="text-3xl font-extrabold text-white/20 group-hover:text-bd-teal-400/40 transition-colors">
+                <span className="text-3xl font-extrabold text-white/30 group-hover:text-bd-teal-400/40 transition-colors">
                   {item.step}
                 </span>
               </div>
@@ -67,7 +67,7 @@ export function HowItWorks() {
               <h3 className="text-lg font-bold text-white mb-2 group-hover:text-bd-teal-400 transition-colors">
                 {item.title}
               </h3>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-slate-300 text-xs leading-relaxed">
                 {item.description}
               </p>
             </div>

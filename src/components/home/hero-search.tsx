@@ -42,7 +42,7 @@ export function HeroSearch() {
             {/* Bus Type Filters */}
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-slate-400 mr-1">Bus Type:</span>
+                <span className="text-xs font-medium text-slate-300 mr-1">Bus Type:</span>
                 {[
                   { id: "all", label: "All Buses" },
                   { id: "ac", label: "AC Bus" },
@@ -63,7 +63,7 @@ export function HeroSearch() {
                 ))}
               </div>
 
-              <div className="hidden sm:flex items-center gap-3 text-xs text-slate-400">
+              <div className="hidden sm:flex items-center gap-3 text-xs text-slate-300">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="h-4 w-4 text-bd-teal-400" />
                   Verified Inter-District Operators
@@ -155,7 +155,7 @@ export function HeroSearch() {
               {/* Passengers */}
               <div className="sm:col-span-5 flex items-center gap-3 bg-bd-navy-900/50 p-2.5 rounded-xl border border-white/5">
                 <Users className="h-4 w-4 text-bd-teal-400 ml-2" />
-                <span className="text-xs font-medium text-slate-300">Passengers:</span>
+                <span className="text-xs font-medium text-slate-200">Passengers:</span>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4].map((num) => (
                     <button
@@ -165,7 +165,7 @@ export function HeroSearch() {
                       className={`h-8 w-8 rounded-lg text-xs font-semibold transition-all ${
                         passengers === num
                           ? "bg-bd-teal-500 text-bd-navy-950 shadow-md shadow-bd-teal-500/20"
-                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                          : "text-slate-300 hover:text-white hover:bg-white/5"
                       }`}
                     >
                       {num}
@@ -195,6 +195,7 @@ export function HeroSearch() {
             fromDistrictId={fromDistrict}
             toDistrictId={toDistrict}
             onSelectFromDistrict={(id) => setFromDistrict(id)}
+            onSelectToDistrict={(id) => setToDistrict(id)}
           />
         </div>
       </div>

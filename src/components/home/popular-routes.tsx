@@ -19,7 +19,7 @@ export function PopularRoutes() {
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
               Top Inter-District <span className="gradient-text">Routes</span>
             </h2>
-            <p className="text-slate-400 text-sm mt-2 max-w-xl">
+            <p className="text-slate-300 text-sm mt-2 max-w-xl">
               Discover Bangladesh's most traveled inter-district routes with luxury AC and non-AC coaches.
             </p>
           </div>
@@ -46,7 +46,7 @@ export function PopularRoutes() {
                   <Badge variant="outline" className="bg-bd-teal-500/10 text-bd-teal-400 border-bd-teal-500/20 text-xs">
                     Inter-District
                   </Badge>
-                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <span className="text-xs text-slate-300 flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5 text-slate-400" />
                     {route.duration}
                   </span>
@@ -69,13 +69,13 @@ export function PopularRoutes() {
               {/* Card Footer: Fare & Operators */}
               <div className="pt-4 border-t border-white/5 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-slate-400 block">Starting from</span>
+                  <span className="text-xs text-slate-300 block">Starting from</span>
                   <span className="text-base font-extrabold text-bd-emerald-400">
                     {route.price}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <span className="text-xs text-slate-300 flex items-center gap-1">
                     <Building2 className="h-3 w-3" />
                     {route.operators} Operators
                   </span>
