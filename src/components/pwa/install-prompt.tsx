@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X, Share } from "lucide-react";
 
 // Types for the beforeinstallprompt event
@@ -12,6 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "pwa-install-dismissed";
 
 export function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -22,9 +24,12 @@ export function PWAInstallPrompt() {
   useEffect(() => {
     setMounted(true);
 
-    // Already installed or dismissed
+    // Check if user already dismissed or installed PWA
     const alreadyDismissed = localStorage.getItem(DISMISSED_KEY) === "true";
-    setDismissed(alreadyDismissed);
+    if (alreadyDismissed) {
+      setDismissed(true);
+      return;
+    }
 
     // Check standalone mode (already installed)
     const standalone =
@@ -32,6 +37,12 @@ export function PWAInstallPrompt() {
       ("standalone" in window.navigator &&
         (window.navigator as { standalone?: boolean }).standalone === true);
     setIsStandalone(standalone);
+
+    if (standalone) {
+      localStorage.setItem(DISMISSED_KEY, "true");
+      setDismissed(true);
+      return;
+    }
 
     // Detect iOS
     const ios =
@@ -42,8 +53,11 @@ export function PWAInstallPrompt() {
     // Listen for install prompt (Android/Chrome)
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setDismissed(false);
+      // Only prompt if not previously dismissed
+      if (localStorage.getItem(DISMISSED_KEY) !== "true") {
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
+        setDismissed(false);
+      }
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -53,8 +67,9 @@ export function PWAInstallPrompt() {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
+    if (outcome === "accepted" || outcome === "dismissed") {
       setDismissed(true);
+      localStorage.setItem(DISMISSED_KEY, "true");
     }
     setDeferredPrompt(null);
   };
@@ -65,10 +80,12 @@ export function PWAInstallPrompt() {
   };
 
   // Don't render if:
-  // - not mounted (SSR)
-  // - already in standalone mode (installed)
-  // - user dismissed it
-  // - not on iOS and no install prompt
+  // - Not on the home page ('/')
+  // - Not mounted (SSR)
+  // - Already in standalone mode (installed)
+  // - User dismissed it previously
+  // - Not on iOS and no install prompt available
+  if (pathname !== "/") return null;
   if (!mounted || isStandalone || dismissed) return null;
   if (!isIOS && !deferredPrompt) return null;
 
@@ -105,7 +122,7 @@ export function PWAInstallPrompt() {
                 <button
                   onClick={handleDismiss}
                   aria-label="Dismiss install prompt"
-                  className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                  className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -130,7 +147,7 @@ export function PWAInstallPrompt() {
             <button
               onClick={handleInstall}
               id="pwa-install-button"
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition-all hover:opacity-90 active:scale-95"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition-all hover:opacity-90 active:scale-95 cursor-pointer"
             >
               <Download className="h-4 w-4" />
               Add to Home Screen
