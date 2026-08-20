@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { BusTrip } from "@/lib/data/buses";
+import { useAuth } from "@/context/auth-context";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +17,12 @@ import {
   CheckCircle2,
   MapPin,
   ShieldCheck,
-  User,
   Ticket,
   ChevronRight,
   Sparkles,
+  Loader2,
+  CreditCard,
+  AlertCircle,
 } from "lucide-react";
 
 interface SeatSelectorModalProps {
@@ -28,17 +32,33 @@ interface SeatSelectorModalProps {
   dateStr?: string;
 }
 
+const PAYMENT_METHODS = [
+  { value: "BKASH", label: "bKash", color: "bg-pink-50 border-pink-200 text-pink-700" },
+  { value: "NAGAD", label: "Nagad", color: "bg-orange-50 border-orange-200 text-orange-700" },
+  { value: "CARD", label: "Card", color: "bg-blue-50 border-blue-200 text-blue-700" },
+  { value: "COUNTER_CASH", label: "Counter", color: "bg-slate-50 border-slate-200 text-slate-700" },
+];
+
 export function SeatSelectorModal({
   trip,
   open,
   onClose,
   dateStr = "Today",
 }: SeatSelectorModalProps) {
+  const router = useRouter();
+  const { user } = useAuth();
+
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [boardingPoint, setBoardingPoint] = useState<string>("");
+  const [droppingPoint, setDroppingPoint] = useState<string>("");
+  const [passengerName, setPassengerName] = useState<string>("");
   const [passengerPhone, setPassengerPhone] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("BKASH");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [bookingRef, setBookingRef] = useState<string>("");
+  const [bookingId, setBookingId] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   if (!trip) return null;
 
@@ -51,36 +71,95 @@ export function SeatSelectorModal({
       setSelectedSeats(selectedSeats.filter((s) => s !== seatId));
     } else {
       if (selectedSeats.length >= 4) {
-        alert("Maximum 4 seats allowed per booking.");
+        setError("Maximum 4 seats allowed per booking.");
         return;
       }
       setSelectedSeats([...selectedSeats, seatId]);
+      setError("");
     }
   };
 
   const totalFare = selectedSeats.length * trip.fareBDT;
   const currentBoarding = boardingPoint || trip.boardingPoints[0];
+  const currentDropping = droppingPoint || trip.droppingPoints[0];
 
-  const handleConfirmBooking = (e: React.FormEvent) => {
+  const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     if (selectedSeats.length === 0) {
-      alert("Please select at least one seat.");
+      setError("Please select at least one seat.");
+      return;
+    }
+    if (!passengerName.trim()) {
+      setError("Please enter passenger name.");
       return;
     }
     if (!passengerPhone.trim()) {
-      alert("Please enter your mobile number.");
+      setError("Please enter your mobile number.");
       return;
     }
 
-    const ref = `BD-${Math.floor(100000 + Math.random() * 900000)}`;
-    setBookingRef(ref);
-    setIsSuccess(true);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tripId: trip.id,
+          seatIds: selectedSeats,
+          boardingPoint: currentBoarding,
+          droppingPoint: currentDropping,
+          passengerName: passengerName.trim(),
+          passengerPhone: passengerPhone.trim(),
+          paymentMethod,
+          // Trip snapshot for dev store
+          operatorName: trip.operatorName,
+          busType: trip.busTypeLabel,
+          fromDistrict: trip.fromDistrictName,
+          toDistrict: trip.toDistrictName,
+          departureTime: trip.departureTime,
+          arrivalTime: trip.arrivalTime,
+          duration: trip.duration,
+          travelDate: dateStr,
+          farePerSeat: trip.fareBDT,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.error || "Booking failed. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      setBookingRef(data.booking.bookingCode);
+      setBookingId(data.booking.id);
+      setIsSuccess(true);
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleResetAndClose = () => {
     setSelectedSeats([]);
     setIsSuccess(false);
+    setError("");
+    setPassengerName("");
+    setPassengerPhone("");
+    setPaymentMethod("BKASH");
+    setBoardingPoint("");
+    setDroppingPoint("");
     onClose();
+  };
+
+  const handleViewTicket = () => {
+    handleResetAndClose();
+    router.push(`/dashboard/bookings/${bookingId}`);
   };
 
   return (
@@ -131,12 +210,20 @@ export function SeatSelectorModal({
                 <strong className="text-slate-900">{trip.fromDistrictName} ➔ {trip.toDistrictName}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                <span className="text-slate-600">Date:</span>
+                <strong className="text-slate-900">{dateStr}</strong>
+              </div>
+              <div className="flex justify-between border-b border-slate-200 pb-1.5">
                 <span className="text-slate-600">Seats:</span>
                 <strong className="text-teal-700 font-bold">{selectedSeats.join(", ")}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Mobile:</span>
-                <strong className="text-slate-900">{passengerPhone}</strong>
+                <span className="text-slate-600">Passenger:</span>
+                <strong className="text-slate-900">{passengerName}</strong>
+              </div>
+              <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                <span className="text-slate-600">Payment:</span>
+                <strong className="text-slate-900">{paymentMethod.replace("_", " ")}</strong>
               </div>
               <div className="flex justify-between pt-1">
                 <span className="text-slate-700 font-bold">Total Fare:</span>
@@ -144,18 +231,28 @@ export function SeatSelectorModal({
               </div>
             </div>
 
-            <Button
-              onClick={handleResetAndClose}
-              className="gradient-teal text-white font-bold px-6 h-10 rounded-xl shadow-md cursor-pointer"
-            >
-              Close
-            </Button>
+            <div className="flex gap-2 justify-center">
+              <Button
+                onClick={handleViewTicket}
+                className="gradient-teal text-white font-bold px-5 h-10 rounded-xl shadow-md cursor-pointer"
+              >
+                <Ticket className="h-4 w-4 mr-1.5" />
+                View Ticket
+              </Button>
+              <Button
+                onClick={handleResetAndClose}
+                variant="outline"
+                className="font-bold px-5 h-10 rounded-xl border-slate-300 cursor-pointer"
+              >
+                Close
+              </Button>
+            </div>
           </div>
         ) : (
-          /* MINIMALIST SEAT SELECTOR LAYOUT */
+          /* SEAT SELECTOR LAYOUT */
           <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
-            {/* LEFT: MINIMAL BUS SEAT MAP */}
-            <div className="md:col-span-6 p-4 sm:p-5 bg-slate-50 border-r border-slate-200 space-y-3">
+            {/* LEFT: BUS SEAT MAP */}
+            <div className="md:col-span-5 p-4 sm:p-5 bg-slate-50 border-r border-slate-200 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-800 flex items-center gap-1">
                   <Armchair className="h-3.5 w-3.5 text-teal-600" /> Select Seat
@@ -279,25 +376,20 @@ export function SeatSelectorModal({
               </div>
             </div>
 
-            {/* RIGHT: MINIMAL CHECKOUT SUMMARY */}
-            <div className="md:col-span-6 p-4 sm:p-5 bg-white space-y-4 flex flex-col justify-between">
+            {/* RIGHT: CHECKOUT FORM */}
+            <div className="md:col-span-7 p-4 sm:p-5 bg-white space-y-3 flex flex-col justify-between">
               <form onSubmit={handleConfirmBooking} className="space-y-3">
-                {/* Boarding Counter */}
+                {/* Passenger Name */}
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5 text-teal-600" /> Boarding Point
-                  </Label>
-                  <select
-                    value={boardingPoint}
-                    onChange={(e) => setBoardingPoint(e.target.value)}
-                    className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600"
-                  >
-                    {trip.boardingPoints.map((pt, i) => (
-                      <option key={i} value={pt}>
-                        {pt}
-                      </option>
-                    ))}
-                  </select>
+                  <Label className="text-xs font-bold text-slate-800">Passenger Name *</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter full name"
+                    value={passengerName}
+                    onChange={(e) => setPassengerName(e.target.value)}
+                    required
+                    className="h-10 text-xs bg-slate-50 border border-slate-300 text-slate-900 font-semibold rounded-xl"
+                  />
                 </div>
 
                 {/* Mobile Number */}
@@ -311,6 +403,61 @@ export function SeatSelectorModal({
                     required
                     className="h-10 text-xs bg-slate-50 border border-slate-300 text-slate-900 font-semibold rounded-xl"
                   />
+                </div>
+
+                {/* Boarding + Dropping Points */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-emerald-600" /> Boarding Point
+                    </Label>
+                    <select
+                      value={boardingPoint}
+                      onChange={(e) => setBoardingPoint(e.target.value)}
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600"
+                    >
+                      {trip.boardingPoints.map((pt, i) => (
+                        <option key={i} value={pt}>{pt}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-red-500" /> Dropping Point
+                    </Label>
+                    <select
+                      value={droppingPoint}
+                      onChange={(e) => setDroppingPoint(e.target.value)}
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600"
+                    >
+                      {trip.droppingPoints.map((pt, i) => (
+                        <option key={i} value={pt}>{pt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <CreditCard className="h-3 w-3 text-teal-600" /> Payment Method
+                  </Label>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {PAYMENT_METHODS.map((pm) => (
+                      <button
+                        key={pm.value}
+                        type="button"
+                        onClick={() => setPaymentMethod(pm.value)}
+                        className={`px-2 py-2 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                          paymentMethod === pm.value
+                            ? "bg-teal-50 border-teal-400 text-teal-700 shadow-sm"
+                            : pm.color + " hover:border-teal-300"
+                        }`}
+                      >
+                        {pm.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Selection & Fare Box */}
@@ -327,15 +474,32 @@ export function SeatSelectorModal({
                   </div>
                 </div>
 
+                {/* Error */}
+                {error && (
+                  <div className="flex items-center gap-1.5 text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    {error}
+                  </div>
+                )}
+
                 {/* Submit Action */}
                 <Button
                   type="submit"
-                  disabled={selectedSeats.length === 0}
+                  disabled={selectedSeats.length === 0 || isLoading}
                   className="w-full h-11 gradient-teal hover:opacity-95 text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer disabled:opacity-40"
                 >
-                  <Ticket className="h-4 w-4 mr-1" />
-                  Confirm & Reserve Ticket
+                  {isLoading ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Processing Payment...</>
+                  ) : (
+                    <><Ticket className="h-4 w-4 mr-1" /> Confirm & Pay ৳{totalFare}</>
+                  )}
                 </Button>
+
+                {!user && (
+                  <p className="text-[10px] text-center text-slate-400 font-medium">
+                    Not logged in? Your booking will still be created for demo purposes.
+                  </p>
+                )}
               </form>
             </div>
           </div>
