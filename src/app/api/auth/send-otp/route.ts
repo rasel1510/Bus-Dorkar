@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { generateOtp, saveOtp } from "@/lib/otp-store";
 import { formatBangladeshPhone } from "@/lib/validation/auth";
 import { findDevUser } from "@/lib/dev-store";
+import { sendVerificationEmail } from "@/lib/email-service";
 
 export async function POST(request: Request) {
   try {
@@ -79,17 +80,25 @@ export async function POST(request: Request) {
       }
     }
 
-    // Generate and save 6-digit OTP
+    // Generate and save 6-digit OTP in secure server memory
     const otpCode = generateOtp();
     saveOtp(cleanEmail, otpCode);
 
-    console.log(`[EMAIL OTP DISPATCH] Verification OTP for ${cleanEmail}: ${otpCode}`);
+    // Dispatch verification email / log to terminal
+    const dispatchResult = await sendVerificationEmail({
+      to: cleanEmail,
+      subject: `Your Bus Dorkar Verification Code: ${otpCode}`,
+      otpCode,
+    });
 
+    // Do NOT return the OTP code in the API response to the client
     return NextResponse.json({
       success: true,
-      message: `A 6-digit verification OTP has been sent to ${cleanEmail}`,
+      message: dispatchResult.sentViaSmtp
+        ? `A 6-digit verification code has been delivered to ${cleanEmail}`
+        : `A 6-digit verification code has been generated for ${cleanEmail}`,
       email: cleanEmail,
-      demoOtp: otpCode, // Provided for instant demo testing
+      sentViaSmtp: dispatchResult.sentViaSmtp,
     });
   } catch (error: any) {
     return NextResponse.json(

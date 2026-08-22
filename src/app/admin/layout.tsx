@@ -19,16 +19,19 @@ import {
   Server,
   Database,
   ArrowLeft,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Command Center", icon: LayoutDashboard, badge: "LIVE" },
+  { href: "/admin/passengers", label: "Passengers Directory", icon: Users },
+  { href: "/admin/staff", label: "Counter Staff & Drivers", icon: UserCheck },
+  { href: "/admin/operators", label: "Bus Operators HQ", icon: Building2, alert: 3 },
   { href: "/admin/operations", label: "Parallel Ops Engine", icon: Cpu, badge: "45K TPS" },
-  { href: "/admin/users", label: "User Directory & RBAC", icon: Users },
-  { href: "/admin/operators", label: "Operator Verifications", icon: Building2, alert: 3 },
+  { href: "/admin/users", label: "Role Elevation & RBAC", icon: ShieldCheck },
   { href: "/admin/bookings", label: "Global Ticket Oversight", icon: Ticket },
-  { href: "/admin/audit-logs", label: "Security & Audit Logs", icon: ShieldCheck },
+  { href: "/admin/audit-logs", label: "Security & Audit Logs", icon: Activity },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

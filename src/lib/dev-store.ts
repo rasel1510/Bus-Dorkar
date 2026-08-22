@@ -34,6 +34,26 @@ const defaultAdminUser: DevUser = {
 };
 saveDevUser(defaultAdminUser);
 
+// Pre-seed Saif Bean passenger user
+const saifUser: DevUser = {
+  id: "pass-saif-001",
+  name: "Saif Bean",
+  email: "saifbean3@gmail.com",
+  phone: "+8801799112233",
+  role: "PASSENGER",
+};
+saveDevUser(saifUser);
+
+export function getAllDevUsers(): DevUser[] {
+  const map = new Map<string, DevUser>();
+  for (const user of devUserStore.values()) {
+    if (user && user.id) {
+      map.set(user.id, user);
+    }
+  }
+  return Array.from(map.values());
+}
+
 export function findDevUser(identifier: string): DevUser | undefined {
   const clean = identifier.trim();
   if (devUserStore.has(clean)) return devUserStore.get(clean);

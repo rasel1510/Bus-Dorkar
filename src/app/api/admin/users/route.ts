@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { devUserStore, saveDevUser } from "@/lib/dev-store";
+import { devUserStore, getAllDevUsers, saveDevUser } from "@/lib/dev-store";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     // Fallback to dev store users
-    const devUsers = Array.from(devUserStore.values());
+    const devUsers = getAllDevUsers();
     let filtered = devUsers;
 
     if (roleFilter && roleFilter !== "ALL") {
@@ -64,6 +64,15 @@ export async function GET(request: Request) {
         email: "rasel4897981@gmail.com",
         phone: "+8801700000001",
         role: "ADMIN",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "pass-saif-001",
+        name: "Saif Bean",
+        email: "saifbean3@gmail.com",
+        phone: "+8801799112233",
+        role: "PASSENGER",
         status: "ACTIVE",
         createdAt: new Date().toISOString(),
       },
