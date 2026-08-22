@@ -55,24 +55,26 @@ export function DashboardSidebar() {
       </div>
 
       {/* Admin Highlight Button */}
-      <div className="p-3 pb-0">
-        <Link
-          href="/admin/dashboard"
-          className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-teal-500/40 text-white hover:border-teal-400 shadow-md shadow-slate-950/20 group transition-all"
-        >
-          <div className="h-8 w-8 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center shrink-0">
-            <Shield className="h-4 w-4 text-teal-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-black text-white truncate">Admin Command HQ</span>
-              <Sparkles className="h-3 w-3 text-teal-400 shrink-0" />
+      {isAdmin && (
+        <div className="p-3 pb-0">
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-teal-500/40 text-white hover:border-teal-400 shadow-md shadow-slate-950/20 group transition-all"
+          >
+            <div className="h-8 w-8 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center shrink-0">
+              <Shield className="h-4 w-4 text-teal-400 group-hover:scale-110 transition-transform" />
             </div>
-            <p className="text-[10px] text-slate-400 font-mono font-semibold truncate">Parallel Ops & RBAC</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-black text-white truncate">Admin Command HQ</span>
+                <Sparkles className="h-3 w-3 text-teal-400 shrink-0" />
+              </div>
+              <p className="text-[10px] text-slate-400 font-mono font-semibold truncate">Parallel Ops & RBAC</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+      )}
 
       {/* Navigation Links */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

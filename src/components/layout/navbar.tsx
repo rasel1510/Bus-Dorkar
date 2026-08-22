@@ -49,6 +49,8 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
+
   const getFirstLetter = (name: string) => {
     if (!name || !name.trim()) return "U";
     return name.trim().charAt(0).toUpperCase();
@@ -56,7 +58,7 @@ export function Navbar() {
 
   const getDashboardLink = () => {
     if (user?.role === "BUS_OPERATOR") return "/operator/dashboard";
-    if (user?.role === "ADMIN") return "/admin/dashboard";
+    if (isAdmin) return "/admin/dashboard";
     return "/dashboard";
   };
 
@@ -128,7 +130,7 @@ export function Navbar() {
                 className="w-48 bg-white border border-slate-200 p-1.5 shadow-2xl rounded-2xl space-y-1 z-50"
               >
 
-                {user?.role === "ADMIN" && (
+                {isAdmin && (
                   <DropdownMenuItem
                     render={
                       <Link

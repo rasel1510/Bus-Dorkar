@@ -15,7 +15,6 @@ function getPrismaInstance(): any {
       log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
     });
   } catch (err: any) {
-    console.warn("PrismaClient constructor unconfigured or requires driver adapter:", err.message);
     instance = null;
   }
 

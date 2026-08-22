@@ -67,49 +67,49 @@ export default function AdminAuditLogsPage() {
   const getSeverityStyle = (sev: string) => {
     switch (sev) {
       case "CRITICAL":
-        return "bg-purple-500/20 text-purple-300 border-purple-500/40 font-bold";
+        return "bg-purple-50 text-purple-800 border-purple-200 font-bold";
       case "SUCCESS":
-        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+        return "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold";
       case "WARNING":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/40";
+        return "bg-amber-50 text-amber-800 border-amber-200 font-bold";
       default:
-        return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+        return "bg-blue-50 text-blue-800 border-blue-200 font-bold";
     }
   };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <ShieldCheck className="h-6 w-6 text-teal-400" /> Security Event Inspector & Audit Logs
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <ShieldCheck className="h-6 w-6 text-teal-600" /> Security Event Inspector & Audit Logs
           </h1>
-          <p className="text-xs text-slate-400 mt-1 font-medium">
+          <p className="text-xs text-slate-500 mt-1 font-medium">
             Immutable system logs recording administrative privilege changes, operator approvals, and thread concurrency state.
           </p>
         </div>
       </div>
 
       {/* Search */}
-      <div className="flex justify-end">
+      <div className="flex justify-end border-b border-slate-200 pb-4">
         <div className="relative">
-          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search audit logs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-72 bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder:text-slate-500 pl-9 pr-3 rounded-xl focus:outline-none focus:border-teal-500/50"
+            className="h-9 w-72 bg-white border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 pl-9 pr-3 rounded-xl focus:outline-none focus:border-teal-600 font-medium"
           />
         </div>
       </div>
 
       {/* Logs Table */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-950 text-slate-400 text-[11px] uppercase border-b border-slate-800">
+            <thead className="bg-slate-50 text-slate-600 text-[11px] uppercase border-b border-slate-200">
               <tr>
                 <th className="px-5 py-3.5">Timestamp</th>
                 <th className="px-5 py-3.5">Severity</th>
@@ -119,19 +119,19 @@ export default function AdminAuditLogsPage() {
                 <th className="px-5 py-3.5 text-right">IP Address</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {filtered.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="px-5 py-4 text-slate-400 whitespace-nowrap">{log.timestamp}</td>
+                <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-5 py-4 text-slate-500 font-medium whitespace-nowrap">{log.timestamp}</td>
                   <td className="px-5 py-4">
                     <span className={`px-2 py-0.5 rounded text-[10px] border ${getSeverityStyle(log.severity)}`}>
                       {log.severity}
                     </span>
                   </td>
-                  <td className="px-5 py-4 font-bold text-white whitespace-nowrap">{log.actor}</td>
-                  <td className="px-5 py-4 font-bold text-teal-400">{log.action}</td>
-                  <td className="px-5 py-4 text-slate-300 font-sans">{log.resource}</td>
-                  <td className="px-5 py-4 text-right text-slate-500">{log.ip}</td>
+                  <td className="px-5 py-4 font-bold text-slate-900 whitespace-nowrap">{log.actor}</td>
+                  <td className="px-5 py-4 font-bold text-teal-700">{log.action}</td>
+                  <td className="px-5 py-4 text-slate-800 font-sans font-medium">{log.resource}</td>
+                  <td className="px-5 py-4 text-right text-slate-400 font-medium">{log.ip}</td>
                 </tr>
               ))}
             </tbody>

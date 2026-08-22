@@ -53,17 +53,17 @@ export default function ParallelOperationsPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              <Cpu className="h-6 w-6 text-teal-400" /> High-Throughput Parallel Engine
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Cpu className="h-6 w-6 text-teal-600" /> High-Throughput Parallel Engine
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200">
               DISTRIBUTED QUEUE ENGINE
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1 font-medium">
+          <p className="text-xs text-slate-500 mt-1 font-medium">
             Handles millions of parallel passenger bookings, counter check-ins & operator route updates concurrently.
           </p>
         </div>
@@ -73,8 +73,8 @@ export default function ParallelOperationsPage() {
             onClick={toggleSurgeSimulation}
             className={`h-9 px-4 rounded-xl text-xs font-black transition-all cursor-pointer ${
               isSurgeSimulated
-                ? "bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-lg shadow-amber-500/30 animate-pulse"
-                : "bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:bg-teal-500/30"
+                ? "bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-md animate-pulse"
+                : "bg-teal-50 border border-teal-200 text-teal-800 hover:bg-teal-100"
             }`}
           >
             <Flame className="h-4 w-4 mr-1.5" />
@@ -85,23 +85,23 @@ export default function ParallelOperationsPage() {
             onClick={toggleCircuitBreaker}
             className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               circuitBreakerActive
-                ? "bg-red-500 text-white font-black animate-pulse"
-                : "bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+                ? "bg-red-600 text-white font-black animate-pulse shadow-md"
+                : "bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <AlertOctagon className="h-3.5 w-3.5 mr-1.5 text-red-400" />
+            <AlertOctagon className="h-3.5 w-3.5 mr-1.5 text-red-600" />
             {circuitBreakerActive ? "Circuit Breaker ENGAGED" : "Emergency Throttle"}
           </Button>
         </div>
       </div>
 
       {circuitBreakerActive && (
-        <div className="p-4 bg-red-500/20 border border-red-500/40 text-red-300 rounded-2xl text-xs font-bold flex items-center justify-between">
+        <div className="p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2">
-            <AlertOctagon className="h-5 w-5 text-red-400" />
+            <AlertOctagon className="h-5 w-5 text-red-600" />
             <span>TRAFFIC THROTTLE ACTIVE: Concurrency restricted to 5,000 req/sec to prioritize seat booking lock stability.</span>
           </div>
-          <Button onClick={toggleCircuitBreaker} size="sm" className="bg-red-500 text-white font-bold text-[10px]">
+          <Button onClick={toggleCircuitBreaker} size="sm" className="bg-red-600 text-white font-bold text-[10px] cursor-pointer">
             Disengage
           </Button>
         </div>
@@ -109,43 +109,43 @@ export default function ParallelOperationsPage() {
 
       {/* Main Gauges Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-1">
-          <span className="text-[11px] text-slate-400 font-mono uppercase font-semibold">Active Parallel TPS</span>
-          <p className="text-3xl font-black text-teal-400 font-mono tracking-tight">{opsPerSec.toLocaleString()}</p>
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-1 shadow-sm">
+          <span className="text-[11px] text-slate-500 font-mono uppercase font-semibold">Active Parallel TPS</span>
+          <p className="text-3xl font-black text-teal-700 font-mono tracking-tight">{opsPerSec.toLocaleString()}</p>
           <p className="text-[10px] text-slate-500 font-mono">Operations per second</p>
         </div>
 
-        <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-1">
-          <span className="text-[11px] text-slate-400 font-mono uppercase font-semibold">Worker Pool Allocation</span>
-          <p className="text-3xl font-black text-emerald-400 font-mono tracking-tight">{activeThreads} Nodes</p>
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-1 shadow-sm">
+          <span className="text-[11px] text-slate-500 font-mono uppercase font-semibold">Worker Pool Allocation</span>
+          <p className="text-3xl font-black text-emerald-700 font-mono tracking-tight">{activeThreads} Nodes</p>
           <p className="text-[10px] text-slate-500 font-mono">Multi-core worker threads active</p>
         </div>
 
-        <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-1">
-          <span className="text-[11px] text-slate-400 font-mono uppercase font-semibold">Lock Wait Overhead</span>
-          <p className="text-3xl font-black text-cyan-400 font-mono tracking-tight">{lockWaitMs} ms</p>
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-1 shadow-sm">
+          <span className="text-[11px] text-slate-500 font-mono uppercase font-semibold">Lock Wait Overhead</span>
+          <p className="text-3xl font-black text-cyan-700 font-mono tracking-tight">{lockWaitMs} ms</p>
           <p className="text-[10px] text-slate-500 font-mono">Optimistic seat lock validation</p>
         </div>
 
-        <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-1">
-          <span className="text-[11px] text-slate-400 font-mono uppercase font-semibold">Partition Integrity</span>
-          <p className="text-3xl font-black text-purple-400 font-mono tracking-tight">100.0%</p>
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-1 shadow-sm">
+          <span className="text-[11px] text-slate-500 font-mono uppercase font-semibold">Partition Integrity</span>
+          <p className="text-3xl font-black text-purple-700 font-mono tracking-tight">100.0%</p>
           <p className="text-[10px] text-slate-500 font-mono">Zero race conditions detected</p>
         </div>
       </div>
 
       {/* Cluster Worker Partition Visualizer */}
-      <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
-            <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-              <Layers className="h-5 w-5 text-teal-400" /> Active Worker Cluster Partitions
+            <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <Layers className="h-5 w-5 text-teal-600" /> Active Worker Cluster Partitions
             </h2>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-slate-500 font-medium">
               Real-time state of partitioned ticket processing pipelines across Bangladesh divisions.
             </p>
           </div>
-          <span className="text-xs font-mono font-bold text-teal-400 bg-teal-500/10 border border-teal-500/30 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-mono font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">
             Redis Cluster Mode: SHARDED
           </span>
         </div>
@@ -157,22 +157,22 @@ export default function ParallelOperationsPage() {
             { region: "Sylhet Express Line", shard: "shard-sylhet-03", load: "45%", status: "HEALTHY" },
             { region: "Rajshahi & Rangpur Shard", shard: "shard-north-04", load: "84%", status: "HEALTHY" },
           ].map((p, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white">{p.region}</span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                <span className="text-xs font-bold text-slate-900">{p.region}</span>
+                <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
                   {p.status}
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-mono">Shard: {p.shard}</p>
               <div className="space-y-1">
-                <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                <div className="flex justify-between text-[10px] font-mono text-slate-600 font-medium">
                   <span>Shard Capacity</span>
-                  <span className="text-teal-400 font-bold">{p.load}</span>
+                  <span className="text-teal-700 font-bold">{p.load}</span>
                 </div>
-                <div className="h-2 bg-slate-900 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-teal-400 rounded-full"
+                    className="h-full bg-teal-600 rounded-full"
                     style={{ width: p.load }}
                   />
                 </div>
