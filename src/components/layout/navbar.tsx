@@ -70,7 +70,7 @@ export function Navbar() {
           : "bg-white/80 backdrop-blur-sm border-b border-slate-100"
       }`}
     >
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <nav className="w-full flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group" id="navbar-logo">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-teal transition-transform group-hover:scale-110 shadow-md shadow-teal-600/20">

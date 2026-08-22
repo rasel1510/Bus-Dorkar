@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BusTrip } from "@/lib/data/buses";
 import { useAuth } from "@/context/auth-context";
@@ -59,14 +59,39 @@ export function SeatSelectorModal({
   const [bookingRef, setBookingRef] = useState<string>("");
   const [bookingId, setBookingId] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [liveBookedSeats, setLiveBookedSeats] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!open || !trip) return;
+
+    const fetchLiveSeats = () => {
+      fetch(`/api/trips/booked-seats?tripId=${trip.id}&date=${encodeURIComponent(dateStr)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.bookedSeats)) {
+            setLiveBookedSeats(data.bookedSeats);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchLiveSeats();
+    const intervalId = setInterval(fetchLiveSeats, 3000);
+    return () => clearInterval(intervalId);
+  }, [open, trip, dateStr]);
 
   if (!trip) return null;
+
+  const allBookedSeats = Array.from(
+    new Set([...(trip.bookedSeatNumbers || []), ...liveBookedSeats])
+  );
+  const availableSeatsCount = Math.max(0, trip.totalSeats - allBookedSeats.length);
 
   const rowLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
   const isSleeper = trip.seatLayout === "SLEEPER";
 
   const toggleSeat = (seatId: string) => {
-    if (trip.bookedSeatNumbers.includes(seatId)) return;
+    if (allBookedSeats.includes(seatId)) return;
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter((s) => s !== seatId));
     } else {
@@ -258,7 +283,7 @@ export function SeatSelectorModal({
                   <Armchair className="h-3.5 w-3.5 text-teal-600" /> Select Seat
                 </span>
                 <span className="font-semibold text-emerald-700">
-                  {trip.availableSeats} available
+                  {availableSeatsCount} available
                 </span>
               </div>
 
@@ -292,10 +317,10 @@ export function SeatSelectorModal({
                     const seat3 = `${row}3`;
                     const seat4 = `${row}4`;
 
-                    const isBooked1 = trip.bookedSeatNumbers.includes(seat1);
-                    const isBooked2 = trip.bookedSeatNumbers.includes(seat2);
-                    const isBooked3 = trip.bookedSeatNumbers.includes(seat3);
-                    const isBooked4 = trip.bookedSeatNumbers.includes(seat4);
+                    const isBooked1 = allBookedSeats.includes(seat1);
+                    const isBooked2 = allBookedSeats.includes(seat2);
+                    const isBooked3 = allBookedSeats.includes(seat3);
+                    const isBooked4 = allBookedSeats.includes(seat4);
 
                     const isSel1 = selectedSeats.includes(seat1);
                     const isSel2 = selectedSeats.includes(seat2);

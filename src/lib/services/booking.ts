@@ -7,6 +7,7 @@ import {
   generateBookingCode,
   generateTransactionId,
   calculateRefundPercentage,
+  checkDevSeatConflict,
   DevBooking,
 } from "@/lib/dev-booking-store";
 import { CreateBookingInput } from "@/lib/validation/booking";
@@ -22,6 +23,17 @@ export async function createBookingService(
   userId: string,
   input: CreateBookingInput
 ): Promise<BookingResult> {
+  const travelDate = input.travelDate || new Date().toISOString().split("T")[0];
+
+  // 🔴 STRICT DOUBLE BOOKING GUARD: Check if any requested seats are already booked
+  const conflicts = checkDevSeatConflict(input.tripId, travelDate, input.seatIds);
+  if (conflicts.length > 0) {
+    return {
+      success: false,
+      error: `Seat(s) ${conflicts.join(", ")} are already booked by another passenger. Please select available seats.`,
+    };
+  }
+
   const farePerSeat = input.farePerSeat || 1200;
   const totalAmount = input.seatIds.length * farePerSeat;
   const bookingCode = generateBookingCode();
@@ -35,7 +47,7 @@ export async function createBookingService(
     phone: input.passengerPhone,
     seats: input.seatIds,
     route: `${input.fromDistrict || "Dhaka"} -> ${input.toDistrict || "Cox's Bazar"}`,
-    date: input.travelDate || new Date().toISOString().split("T")[0],
+    date: travelDate,
   });
 
   try {

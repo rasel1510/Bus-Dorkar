@@ -117,6 +117,66 @@ export function cancelDevBooking(
   return booking;
 }
 
+function normalizeDateStr(d?: string | null): string {
+  if (!d) return "";
+  const clean = d.trim().toLowerCase();
+  if (clean === "today" || clean === "") {
+    return new Date().toISOString().split("T")[0];
+  }
+  if (clean.includes("t")) {
+    return clean.split("t")[0];
+  }
+  const match = clean.match(/\d{4}-\d{2}-\d{2}/);
+  if (match) return match[0];
+  return clean;
+}
+
+/** Get all currently active booked seat numbers for a specific trip and travel date */
+export function getAllDevBookedSeatsForTrip(tripId: string, travelDate?: string): string[] {
+  const bookedSeats = new Set<string>();
+  const seen = new Set<string>();
+
+  const targetDate = normalizeDateStr(travelDate);
+  const targetTripId = (tripId || "").trim().toLowerCase();
+
+  for (const booking of devBookingStore.values()) {
+    if (!booking || !booking.id) continue;
+    if (seen.has(booking.id)) continue;
+    seen.add(booking.id);
+
+    // Skip cancelled or expired bookings
+    if (booking.status === "CANCELLED" || booking.status === "EXPIRED") continue;
+
+    const bookingTripId = (booking.tripId || "").trim().toLowerCase();
+
+    if (bookingTripId === targetTripId || targetTripId.includes(bookingTripId) || bookingTripId.includes(targetTripId)) {
+      // Normalize dates before checking match
+      if (targetDate && booking.travelDate) {
+        const bookingDate = normalizeDateStr(booking.travelDate);
+        if (targetDate !== bookingDate && bookingDate !== "" && targetDate !== "") {
+          continue;
+        }
+      }
+      if (Array.isArray(booking.seats)) {
+        booking.seats.forEach((seat) => bookedSeats.add(seat));
+      }
+    }
+  }
+
+  return Array.from(bookedSeats);
+}
+
+/** Check if any requested seats are already booked for a given trip and date */
+export function checkDevSeatConflict(
+  tripId: string,
+  travelDate: string,
+  requestedSeats: string[]
+): string[] {
+  const alreadyBooked = getAllDevBookedSeatsForTrip(tripId, travelDate);
+  const conflicts = requestedSeats.filter((seat) => alreadyBooked.includes(seat));
+  return conflicts;
+}
+
 /**
  * Calculate refund percentage based on time before departure.
  * Uses the default cancellation policy from the project spec.
@@ -131,3 +191,4 @@ export function calculateRefundPercentage(departureTimeISO: string): number {
   if (hoursUntilDeparture > 6) return 40;
   return 0; // No refund within 6 hours
 }
+

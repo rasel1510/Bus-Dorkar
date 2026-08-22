@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: any;
@@ -11,10 +13,21 @@ function getPrismaInstance(): any {
 
   let instance: any = null;
   try {
-    instance = new PrismaClient({
-      log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-    });
+    const connectionString = process.env.DATABASE_URL;
+    if (connectionString) {
+      const pool = new Pool({ connectionString });
+      const adapter = new PrismaPg(pool);
+      instance = new PrismaClient({
+        adapter,
+        log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+      });
+    } else {
+      instance = new PrismaClient({
+        log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+      });
+    }
   } catch (err: any) {
+    console.warn("Prisma initialization fallback warning:", err.message);
     instance = null;
   }
 

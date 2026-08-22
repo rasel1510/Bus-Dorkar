@@ -1,5 +1,6 @@
 // Inter-District Bus Trips & Timetable Engine
 // Inspired by Skyss & Norwegian transport platforms for Bangladesh
+import { getAllDevBookedSeatsForTrip } from "@/lib/dev-booking-store";
 
 export interface BusTrip {
   id: string;
@@ -34,8 +35,8 @@ export const OPERATOR_PROFILES = [
     id: "green-line",
     name: "Green Line Paribahan",
     logoBg: "from-emerald-600 to-teal-700",
-    rating: 4.8,
-    reviews: "2.4k",
+    rating: 4.9,
+    reviews: "12.4k",
     types: ["AC_SCANIA", "SLEEPER_LUXURY"],
     baseFareMultiplier: 1.25,
   },
@@ -43,8 +44,8 @@ export const OPERATOR_PROFILES = [
     id: "shohagh",
     name: "Shohagh Paribahan",
     logoBg: "from-teal-600 to-cyan-700",
-    rating: 4.7,
-    reviews: "1.9k",
+    rating: 4.8,
+    reviews: "15.4k",
     types: ["AC_VOLVO", "AC_SCANIA"],
     baseFareMultiplier: 1.2,
   },
@@ -52,8 +53,8 @@ export const OPERATOR_PROFILES = [
     id: "hanif",
     name: "Hanif Enterprise",
     logoBg: "from-blue-600 to-indigo-700",
-    rating: 4.6,
-    reviews: "3.5k",
+    rating: 4.7,
+    reviews: "24.9k",
     types: ["NON_AC_DELUXE", "AC_VOLVO"],
     baseFareMultiplier: 1.0,
   },
@@ -61,8 +62,8 @@ export const OPERATOR_PROFILES = [
     id: "ena",
     name: "Ena Transport",
     logoBg: "from-emerald-700 to-green-800",
-    rating: 4.5,
-    reviews: "2.8k",
+    rating: 4.6,
+    reviews: "18.2k",
     types: ["AC_VOLVO", "NON_AC_DELUXE"],
     baseFareMultiplier: 1.05,
   },
@@ -70,8 +71,8 @@ export const OPERATOR_PROFILES = [
     id: "shyamoli-nr",
     name: "Shyamoli N.R Travels",
     logoBg: "from-purple-600 to-indigo-700",
-    rating: 4.7,
-    reviews: "1.6k",
+    rating: 4.8,
+    reviews: "9.8k",
     types: ["SLEEPER_LUXURY", "AC_SCANIA"],
     baseFareMultiplier: 1.3,
   },
@@ -80,9 +81,135 @@ export const OPERATOR_PROFILES = [
     name: "Saintmartin Travels",
     logoBg: "from-cyan-600 to-teal-800",
     rating: 4.9,
-    reviews: "1.2k",
+    reviews: "6.2k",
     types: ["SLEEPER_LUXURY", "AC_VOLVO"],
     baseFareMultiplier: 1.35,
+  },
+  {
+    id: "desh-travels",
+    name: "Desh Travels Express",
+    logoBg: "from-red-600 to-rose-700",
+    rating: 4.8,
+    reviews: "8.1k",
+    types: ["AC_SCANIA", "NON_AC_DELUXE"],
+    baseFareMultiplier: 1.15,
+  },
+  {
+    id: "nabil",
+    name: "Nabil Paribahan",
+    logoBg: "from-indigo-600 to-blue-800",
+    rating: 4.6,
+    reviews: "7.4k",
+    types: ["AC_VOLVO", "NON_AC_DELUXE"],
+    baseFareMultiplier: 1.08,
+  },
+  {
+    id: "saudia",
+    name: "Saudia Developmental Transport",
+    logoBg: "from-amber-600 to-yellow-700",
+    rating: 4.5,
+    reviews: "11.0k",
+    types: ["AC_VOLVO", "NON_AC_DELUXE"],
+    baseFareMultiplier: 1.02,
+  },
+  {
+    id: "royal-express",
+    name: "Royal Express",
+    logoBg: "from-purple-700 to-pink-700",
+    rating: 4.7,
+    reviews: "5.9k",
+    types: ["AC_SCANIA", "NON_AC_DELUXE"],
+    baseFareMultiplier: 1.12,
+  },
+  {
+    id: "silk-line",
+    name: "Silk Line Paribahan",
+    logoBg: "from-sky-600 to-blue-700",
+    rating: 4.8,
+    reviews: "4.3k",
+    types: ["AC_SCANIA", "SLEEPER_LUXURY"],
+    baseFareMultiplier: 1.28,
+  },
+  {
+    id: "agami-desh",
+    name: "Agami Desh Travels",
+    logoBg: "from-teal-700 to-emerald-800",
+    rating: 4.6,
+    reviews: "3.7k",
+    types: ["AC_VOLVO"],
+    baseFareMultiplier: 1.1,
+  },
+  {
+    id: "tr-travels",
+    name: "TR Travels",
+    logoBg: "from-slate-700 to-slate-900",
+    rating: 4.7,
+    reviews: "5.1k",
+    types: ["SLEEPER_LUXURY", "AC_SCANIA"],
+    baseFareMultiplier: 1.32,
+  },
+  {
+    id: "eagle",
+    name: "Eagle Paribahan",
+    logoBg: "from-rose-600 to-red-800",
+    rating: 4.4,
+    reviews: "14.2k",
+    types: ["NON_AC_DELUXE", "AC_VOLVO"],
+    baseFareMultiplier: 0.98,
+  },
+  {
+    id: "s-alam",
+    name: "S.Alam Transport",
+    logoBg: "from-emerald-800 to-teal-900",
+    rating: 4.5,
+    reviews: "16.8k",
+    types: ["NON_AC_DELUXE", "AC_VOLVO"],
+    baseFareMultiplier: 1.0,
+  },
+  {
+    id: "brtc",
+    name: "BRTC (Bangladesh Road Transport Corp)",
+    logoBg: "from-red-700 to-green-700",
+    rating: 4.3,
+    reviews: "32.1k",
+    types: ["NON_AC_DELUXE", "AC_VOLVO"],
+    baseFareMultiplier: 0.85,
+  },
+  {
+    id: "rozina",
+    name: "Rozina Enterprise",
+    logoBg: "from-orange-600 to-amber-700",
+    rating: 4.4,
+    reviews: "6.8k",
+    types: ["NON_AC_DELUXE"],
+    baseFareMultiplier: 0.95,
+  },
+  {
+    id: "dipraj",
+    name: "Dipraj Paribahan",
+    logoBg: "from-blue-700 to-cyan-800",
+    rating: 4.3,
+    reviews: "4.2k",
+    types: ["NON_AC_DELUXE"],
+    baseFareMultiplier: 0.92,
+  },
+  {
+    id: "sakura",
+    name: "Sakura Paribahan",
+    logoBg: "from-pink-600 to-rose-700",
+    rating: 4.5,
+    reviews: "9.1k",
+    types: ["NON_AC_DELUXE", "AC_VOLVO"],
+    baseFareMultiplier: 0.96,
+  },
+  {
+    id: "manik-express",
+    name: "Manik Express",
+    logoBg: "from-violet-600 to-purple-800",
+    rating: 4.4,
+    reviews: "5.3k",
+    types: ["NON_AC_DELUXE"],
+    baseFareMultiplier: 0.93,
   },
 ];
 
@@ -172,6 +299,7 @@ export function getBusTripsForRoute(
       fareMult = 0.85;
     }
 
+    const tripId = `trip-${fromId}-${toId}-${index + 1}`;
     const calculatedFare = Math.round(baseFare * op.baseFareMultiplier * fareMult);
     const arrH24 = (sched.h24 + estimatedDurationHours) % 24;
     const arrHourInt = Math.floor(arrH24);
@@ -184,23 +312,29 @@ export function getBusTripsForRoute(
     const durMins = Math.round((estimatedDurationHours - durHours) * 60);
     const durationStr = `${durHours}h ${durMins > 0 ? `${durMins}m` : "00m"}`;
 
+    // Base pre-booked demo seats
     const bookedCount = 10 + ((index * 7) % 18);
-    const availableS = totalS - bookedCount;
-
-    const bookedSeatsList: string[] = [];
+    const bookedSeatsSet = new Set<string>();
     const seatRows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
     let added = 0;
     for (const row of seatRows) {
       for (let col = 1; col <= 4; col++) {
         if (added < bookedCount && (added + index) % 2 === 0) {
-          bookedSeatsList.push(`${row}${col}`);
+          bookedSeatsSet.add(`${row}${col}`);
         }
         added++;
       }
     }
 
+    // 🔴 FETCH & MERGE REAL PASSENGER BOOKINGS dynamically for this trip & travel date
+    const realBookedSeats = getAllDevBookedSeatsForTrip(tripId, dateStr);
+    realBookedSeats.forEach((seat) => bookedSeatsSet.add(seat));
+
+    const finalBookedSeatsList = Array.from(bookedSeatsSet);
+    const availableS = Math.max(0, totalS - finalBookedSeatsList.length);
+
     return {
-      id: `trip-${fromId}-${toId}-${index + 1}`,
+      id: tripId,
       operatorId: op.id,
       operatorName: op.name,
       operatorLogoBg: op.logoBg,
@@ -223,7 +357,7 @@ export function getBusTripsForRoute(
       fareBDT: calculatedFare,
       availableSeats: availableS,
       totalSeats: totalS,
-      bookedSeatNumbers: bookedSeatsList,
+      bookedSeatNumbers: finalBookedSeatsList,
       amenities: [
         "Air Conditioning",
         "Reclining Seats",
