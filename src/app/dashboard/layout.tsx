@@ -2,21 +2,26 @@
 
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { DashboardSidebar, DashboardMobileNav } from "@/components/dashboard/sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isLoading && !user) {
       router.push("/login");
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, mounted]);
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center space-y-3">

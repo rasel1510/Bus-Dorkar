@@ -11,6 +11,8 @@ import {
   Search,
   User,
   Loader2,
+  Shield,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +20,8 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<BookingCardData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
 
   useEffect(() => {
     fetchBookings();
@@ -51,19 +55,50 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-            Welcome back, <span className="gradient-text">{user?.name?.split(" ")[0] || "Passenger"}</span>
+            Welcome back, <span className="gradient-text">{user?.name?.split(" ")[0] || (isAdmin ? "Admin" : "Passenger")}</span>
           </h1>
           <p className="text-sm text-slate-500 font-medium mt-0.5">
-            Manage your trips, tickets, and profile
+            {isAdmin ? "Admin Superuser Account — Manage system operations, staff & users" : "Manage your trips, tickets, and profile"}
           </p>
         </div>
-        <Link href="/search">
-          <Button className="gradient-teal text-white font-bold text-xs px-4 h-9 rounded-xl shadow-sm cursor-pointer hidden sm:flex">
-            <Search className="h-3.5 w-3.5 mr-1.5" />
-            Search Buses
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link href="/admin/dashboard">
+              <Button className="bg-slate-950 hover:bg-slate-900 text-teal-400 font-bold text-xs px-4 h-9 rounded-xl shadow-md border border-teal-500/40 cursor-pointer flex items-center gap-1.5">
+                <Shield className="h-4 w-4 text-teal-400" />
+                Admin Command HQ
+              </Button>
+            </Link>
+          )}
+          <Link href="/search">
+            <Button className="gradient-teal text-white font-bold text-xs px-4 h-9 rounded-xl shadow-sm cursor-pointer hidden sm:flex">
+              <Search className="h-3.5 w-3.5 mr-1.5" />
+              Search Buses
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {isAdmin && (
+        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-teal-500/50 p-4 rounded-2xl text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center shrink-0">
+              <Shield className="h-5 w-5 text-teal-400" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white flex items-center gap-2">
+                Logged in as Admin: <span className="text-teal-300 font-mono">{user?.email || "rasel4897981@gmail.com"}</span>
+              </p>
+              <p className="text-[11px] text-slate-400">Access high-throughput parallel ops engine, RBAC role assignment & operator approvals.</p>
+            </div>
+          </div>
+          <Link href="/admin/dashboard">
+            <Button className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs h-9 px-4 rounded-xl shrink-0 cursor-pointer">
+              Launch Admin Dashboard →
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Stats */}
       <StatsCards

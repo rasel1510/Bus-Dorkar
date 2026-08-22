@@ -1,31 +1,48 @@
 "use client";
 
-import { useOffline } from "next/offline";
 import { useEffect, useState } from "react";
 import { WifiOff, RefreshCw } from "lucide-react";
 
+function useOffline() {
+  const [isOffline, setIsOffline] = useState(() =>
+    typeof window !== "undefined" ? !navigator.onLine : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  return isOffline;
+}
+
 export function OfflineBanner() {
   const isOffline = useOffline();
-  const [visible, setVisible] = useState(false);
   const [wasOffline, setWasOffline] = useState(false);
   const [reconnected, setReconnected] = useState(false);
 
   useEffect(() => {
     if (isOffline) {
-      setVisible(true);
       setWasOffline(true);
       setReconnected(false);
     } else if (wasOffline) {
-      // Show brief "reconnected" message then hide
       setReconnected(true);
       const timer = setTimeout(() => {
-        setVisible(false);
         setReconnected(false);
         setWasOffline(false);
       }, 2500);
       return () => clearTimeout(timer);
     }
   }, [isOffline, wasOffline]);
+
+  const visible = isOffline || reconnected;
 
   if (!visible) return null;
 

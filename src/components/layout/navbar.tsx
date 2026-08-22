@@ -128,6 +128,20 @@ export function Navbar() {
                 className="w-48 bg-white border border-slate-200 p-1.5 shadow-2xl rounded-2xl space-y-1 z-50"
               >
 
+                {user?.role === "ADMIN" && (
+                  <DropdownMenuItem
+                    render={
+                      <Link
+                        href="/admin/dashboard"
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-teal-700 hover:bg-teal-50 rounded-xl cursor-pointer transition-colors"
+                      />
+                    }
+                  >
+                    <Shield className="h-4 w-4 text-teal-600" />
+                    Admin Command HQ
+                  </DropdownMenuItem>
+                )}
+
                 <DropdownMenuItem
                   render={
                     <Link

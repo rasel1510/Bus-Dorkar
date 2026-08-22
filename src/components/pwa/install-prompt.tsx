@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Download, X, Share } from "lucide-react";
+
+const emptySubscribe = () => () => {};
 
 // Types for the beforeinstallprompt event
 interface BeforeInstallPromptEvent extends Event {
@@ -19,15 +21,12 @@ export function PWAInstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [dismissed, setDismissed] = useState(true); // start hidden
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
-
     // Check if user already dismissed or installed PWA
     const alreadyDismissed = localStorage.getItem(DISMISSED_KEY) === "true";
     if (alreadyDismissed) {
-      setDismissed(true);
       return;
     }
 

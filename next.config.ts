@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // 4. PWA — Offline support: Next.js auto-retries failed navigations/Server Actions
-  experimental: {
-    useOffline: true,
-  },
 
   // 5. Security headers (required for PWA / service worker)
   async headers() {

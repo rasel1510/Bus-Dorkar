@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 import {
   LayoutDashboard,
   Ticket,
@@ -13,6 +14,9 @@ import {
   HelpCircle,
   Bus,
   ChevronRight,
+  Shield,
+  Zap,
+  Sparkles,
 } from "lucide-react";
 
 export const sidebarLinks = [
@@ -27,6 +31,8 @@ export const sidebarLinks = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -38,15 +44,41 @@ export function DashboardSidebar() {
       {/* Sidebar Header */}
       <div className="p-5 border-b border-slate-100">
         <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg gradient-teal flex items-center justify-center">
-            <Bus className="h-4 w-4 text-white" />
+          <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${isAdmin ? "bg-slate-950 text-teal-400" : "gradient-teal text-white"}`}>
+            {isAdmin ? <Shield className="h-4 w-4 text-teal-400" /> : <Bus className="h-4 w-4 text-white" />}
           </div>
-          Passenger Portal
+          <div>
+            <span className="block leading-tight">{isAdmin ? "Admin Superuser Portal" : "Passenger Portal"}</span>
+            {isAdmin && <span className="text-[10px] text-teal-700 font-mono font-bold">ADMIN HQ CONTROL</span>}
+          </div>
         </h2>
       </div>
 
-      {/* Navigation */}
+      {/* Admin Highlight Button */}
+      <div className="p-3 pb-0">
+        <Link
+          href="/admin/dashboard"
+          className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-teal-500/40 text-white hover:border-teal-400 shadow-md shadow-slate-950/20 group transition-all"
+        >
+          <div className="h-8 w-8 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center shrink-0">
+            <Shield className="h-4 w-4 text-teal-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-black text-white truncate">Admin Command HQ</span>
+              <Sparkles className="h-3 w-3 text-teal-400 shrink-0" />
+            </div>
+            <p className="text-[10px] text-slate-400 font-mono font-semibold truncate">Parallel Ops & RBAC</p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      </div>
+
+      {/* Navigation Links */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          User Menu
+        </div>
         {sidebarLinks.map((link) => {
           const active = isActive(link.href);
           return (
@@ -88,6 +120,8 @@ export function DashboardSidebar() {
 /** Mobile bottom navigation for dashboard */
 export function DashboardMobileNav() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -96,9 +130,9 @@ export function DashboardMobileNav() {
 
   const mobileNavLinks = [
     { href: "/dashboard", label: "Home", icon: LayoutDashboard },
+    ...(isAdmin ? [{ href: "/admin/dashboard", label: "Admin HQ", icon: Shield }] : []),
     { href: "/dashboard/bookings", label: "Tickets", icon: Ticket },
     { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
-    { href: "/dashboard/saved", label: "Saved", icon: Bookmark },
     { href: "/dashboard/profile", label: "Profile", icon: User },
   ];
 

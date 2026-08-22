@@ -24,6 +24,16 @@ export function saveDevUser(user: DevUser) {
   if (digits) devUserStore.set(digits, user);
 }
 
+// Pre-seed default Admin user
+const defaultAdminUser: DevUser = {
+  id: "admin-rasel-001",
+  name: "Rasel Admin",
+  email: "rasel4897981@gmail.com",
+  phone: "+8801700000001",
+  role: "ADMIN",
+};
+saveDevUser(defaultAdminUser);
+
 export function findDevUser(identifier: string): DevUser | undefined {
   const clean = identifier.trim();
   if (devUserStore.has(clean)) return devUserStore.get(clean);
