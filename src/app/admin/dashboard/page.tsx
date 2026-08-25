@@ -55,7 +55,7 @@ export default function AdminDashboardPage() {
       id: "log-3",
       time: "45s ago",
       type: "SYSTEM",
-      message: "Promoted user 'rasel4897981@gmail.com' to role ADMIN SUPERUSER with full system authority.",
+      message: "Promoted user 'admin@busdorkar.com' to role ADMIN SUPERUSER with full system authority.",
     },
     {
       id: "log-4",
@@ -148,7 +148,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-extrabold text-white">Active System Administrator:</span>
               <span className="font-mono text-xs font-bold text-teal-200 bg-teal-500/20 border border-teal-400/30 px-2 py-0.5 rounded">
-                rasel4897981@gmail.com
+                admin@busdorkar.com
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">

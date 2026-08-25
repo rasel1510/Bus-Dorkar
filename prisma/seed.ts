@@ -33,7 +33,7 @@ const BUS_COMPANIES = [
 ];
 
 async function main() {
-  const adminEmail = "rasel4897981@gmail.com";
+  const adminEmail = "admin@busdorkar.com";
   const adminPhone = "+8801700000001";
 
   console.log("Starting Neon DB Seed for Bus Dorkar...");
@@ -45,7 +45,7 @@ async function main() {
     where: { email: adminEmail },
     update: { role: Role.ADMIN },
     create: {
-      name: "Rasel Admin",
+      name: "System Administrator",
       email: adminEmail,
       phone: adminPhone,
       passwordHash: passwordHash,

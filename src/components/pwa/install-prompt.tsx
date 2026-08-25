@@ -1,36 +1,36 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
-import { Download, X, Share } from "lucide-react";
+import { Download, X, Share, CheckCircle, ChevronRight, HelpCircle, Smartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const emptySubscribe = () => () => {};
 
-// Types for the beforeinstallprompt event
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const DISMISSED_KEY = "pwa-install-dismissed";
+const SESSION_DISMISSED_KEY = "busdorkar_pwa_prompt_dismissed";
 
 export function PWAInstallPrompt() {
-  const pathname = usePathname();
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [dismissed, setDismissed] = useState(true); // start hidden
+  const [isVisible, setIsVisible] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [installedSuccess, setInstalledSuccess] = useState(false);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    // Check if user already dismissed or installed PWA
-    const alreadyDismissed = localStorage.getItem(DISMISSED_KEY) === "true";
-    if (alreadyDismissed) {
-      return;
+    // 1. Register Service Worker
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .catch((err) => console.log("SW registration skipped:", err));
     }
 
-    // Check standalone mode (already installed)
+    // 2. Check if already installed in standalone mode
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       ("standalone" in window.navigator &&
@@ -38,122 +38,194 @@ export function PWAInstallPrompt() {
     setIsStandalone(standalone);
 
     if (standalone) {
-      localStorage.setItem(DISMISSED_KEY, "true");
-      setDismissed(true);
       return;
     }
 
-    // Detect iOS
+    // 3. Detect iOS
     const ios =
       /iPad|iPhone|iPod/.test(navigator.userAgent) &&
       !(window as { MSStream?: unknown }).MSStream;
     setIsIOS(ios);
 
-    // Listen for install prompt (Android/Chrome)
-    const handler = (e: Event) => {
+    // 4. Listen for native browser install prompt (Chrome / Edge / Android)
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      // Only prompt if not previously dismissed
-      if (localStorage.getItem(DISMISSED_KEY) !== "true") {
-        setDeferredPrompt(e as BeforeInstallPromptEvent);
-        setDismissed(false);
-      }
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // 5. Listen for custom open-pwa-install event anywhere in the app
+    const handleCustomOpen = () => {
+      setIsVisible(true);
+      setShowGuide(false);
+    };
+    window.addEventListener("open-pwa-install", handleCustomOpen);
+
+    // 6. Check if user already dismissed in this session
+    const wasDismissed = sessionStorage.getItem(SESSION_DISMISSED_KEY) === "true";
+
+    // Show prompt in bottom-right corner after smooth initial 1.2s delay
+    const timer = setTimeout(() => {
+      if (!wasDismissed && !standalone) {
+        setIsVisible(true);
+      }
+    }, 1200);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("open-pwa-install", handleCustomOpen);
+    };
   }, []);
 
-  const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted" || outcome === "dismissed") {
-      setDismissed(true);
-      localStorage.setItem(DISMISSED_KEY, "true");
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          setInstalledSuccess(true);
+          setTimeout(() => {
+            setIsVisible(false);
+            sessionStorage.setItem(SESSION_DISMISSED_KEY, "true");
+          }, 2000);
+        }
+      } catch {
+        setShowGuide(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      setShowGuide((prev) => !prev);
     }
-    setDeferredPrompt(null);
   };
 
   const handleDismiss = () => {
-    setDismissed(true);
-    localStorage.setItem(DISMISSED_KEY, "true");
+    setIsVisible(false);
+    sessionStorage.setItem(SESSION_DISMISSED_KEY, "true");
   };
 
-  // Don't render if:
-  // - Not on the home page ('/')
-  // - Not mounted (SSR)
-  // - Already in standalone mode (installed)
-  // - User dismissed it previously
-  // - Not on iOS and no install prompt available
-  if (pathname !== "/") return null;
-  if (!mounted || isStandalone || dismissed) return null;
-  if (!isIOS && !deferredPrompt) return null;
+  if (!mounted || isStandalone) {
+    return null;
+  }
 
   return (
-    <div
-      className="fixed bottom-4 left-4 right-4 z-[9998] mx-auto max-w-sm"
-      style={{ animation: "slide-up 0.4s ease-out forwards" }}
-    >
-      <div className="relative overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-2xl shadow-teal-900/10">
-        {/* Gradient accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-teal-500 to-emerald-500" />
+    <>
+      {/* 1. Main Expanded Install Alert (Bottom-Right) */}
+      {isVisible ? (
+        <aside
+          aria-label="PWA Application Installation Alert"
+          className="fixed bottom-4 right-4 z-[9998] w-[calc(100%-2rem)] sm:w-[320px] max-w-full animate-in fade-in slide-in-from-bottom-5 duration-500"
+        >
+          <div className="relative overflow-hidden rounded-2xl bg-white border-2 border-teal-500/30 shadow-2xl shadow-teal-950/20 backdrop-blur-xl">
+            {/* Top Accent Gradient Bar */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-600" />
 
-        <div className="p-4">
-          {/* Header */}
-          <div className="flex items-start gap-3">
-            {/* App icon */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/icon-192x192.png"
-              alt="Bus Dorkar"
-              className="h-12 w-12 rounded-xl shadow-md flex-shrink-0"
-            />
+            <div className="p-3.5 sm:p-4 space-y-3">
+              {/* Header Row */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {/* App Icon */}
+                  <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-700 p-0.5 shadow-md shadow-teal-600/30 flex items-center justify-center shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/icon-192x192.png"
+                      alt="Bus Dorkar App"
+                      className="h-9 w-9 rounded-[9px] object-cover"
+                    />
+                  </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-sm font-extrabold text-slate-900">
-                    Install Bus Dorkar
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Add to your home screen for faster access
-                  </p>
+                  <div className="min-w-0">
+                    <h2 className="text-sm font-extrabold text-slate-900 tracking-tight truncate">
+                      Bus Dorkar App
+                    </h2>
+                    <p className="text-[11px] text-slate-500 font-medium leading-tight">
+                      Fast & offline-ready
+                    </p>
+                  </div>
                 </div>
+
+                {/* Close Button */}
                 <button
                   onClick={handleDismiss}
-                  aria-label="Dismiss install prompt"
-                  className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer"
+                  aria-label="Close install prompt"
+                  title="Minimize"
+                  className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* Success Banner */}
+              {installedSuccess && (
+                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>App installed successfully!</span>
+                </div>
+              )}
+
+              {/* Collapsible Guide for Browsers without auto-prompt */}
+              {showGuide && !installedSuccess && (
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700 space-y-1.5 animate-in fade-in duration-200">
+                  <p className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <HelpCircle className="h-3.5 w-3.5 text-teal-600" /> How to install:
+                  </p>
+                  {isIOS ? (
+                    <p className="text-[11px] leading-relaxed text-slate-600">
+                      Tap <Share className="inline h-3 w-3 text-blue-600 mx-0.5" /> <strong>Share</strong> in Safari, then tap <strong>&ldquo;Add to Home Screen&rdquo;</strong>.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] leading-relaxed text-slate-600">
+                      Click the <strong>Install App icon (⊕ / ⤓)</strong> in your browser address bar, or open the browser menu (⋮) &gt; <strong>&ldquo;Install Bus Dorkar&rdquo;</strong>.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 pt-0.5">
+                <Button
+                  onClick={handleInstallClick}
+                  id="pwa-install-action-btn"
+                  className="flex-1 h-9.5 gradient-teal hover:opacity-95 text-white font-extrabold text-xs rounded-xl shadow-md shadow-teal-600/20 flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>{deferredPrompt ? "Install App Now" : showGuide ? "Close Guide" : "Install App"}</span>
+                  <ChevronRight className="h-3.5 w-3.5 opacity-75 ml-auto" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={handleDismiss}
+                  className="h-9.5 text-xs font-bold text-slate-600 hover:text-slate-900 border-slate-200 rounded-xl px-3 cursor-pointer"
+                >
+                  Later
+                </Button>
               </div>
             </div>
           </div>
-
-          {/* iOS Instructions */}
-          {isIOS && (
-            <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
-              <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                Tap{" "}
-                <Share className="inline h-3.5 w-3.5 text-blue-500 mx-0.5" />{" "}
-                <strong>Share</strong> in Safari, then tap{" "}
-                <strong>&ldquo;Add to Home Screen&rdquo;</strong> to install.
-              </p>
+        </aside>
+      ) : (
+        /* 2. Persistent Floating Trigger Chip when closed/minimized */
+        <div className="fixed bottom-4 right-4 z-[9997] animate-in fade-in zoom-in-90 duration-300">
+          <button
+            onClick={() => {
+              setIsVisible(true);
+              setShowGuide(false);
+            }}
+            id="pwa-reopen-trigger-btn"
+            title="Install Bus Dorkar App (PWA)"
+            className="flex items-center gap-2 px-3 py-2 bg-white/95 hover:bg-white text-slate-800 border-2 border-teal-500/40 rounded-full shadow-lg shadow-teal-950/15 hover:shadow-xl hover:border-teal-600 transition-all hover:scale-105 cursor-pointer group backdrop-blur-md"
+          >
+            <div className="h-6 w-6 rounded-full gradient-teal flex items-center justify-center text-white shadow-xs">
+              <Smartphone className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
             </div>
-          )}
-
-          {/* Android/Chrome Install Button */}
-          {!isIOS && deferredPrompt && (
-            <button
-              onClick={handleInstall}
-              id="pwa-install-button"
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition-all hover:opacity-90 active:scale-95 cursor-pointer"
-            >
-              <Download className="h-4 w-4" />
-              Add to Home Screen
-            </button>
-          )}
+            <span className="text-xs font-extrabold text-slate-800 pr-1 group-hover:text-teal-700 transition-colors">
+              Install App
+            </span>
+          </button>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

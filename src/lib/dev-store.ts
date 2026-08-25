@@ -26,13 +26,23 @@ export function saveDevUser(user: DevUser) {
 
 // Pre-seed default Admin user
 const defaultAdminUser: DevUser = {
-  id: "admin-rasel-001",
-  name: "Rasel Admin",
-  email: "rasel4897981@gmail.com",
+  id: "admin-system-001",
+  name: "System Administrator",
+  email: "admin@busdorkar.com",
   phone: "+8801700000001",
   role: "ADMIN",
 };
 saveDevUser(defaultAdminUser);
+
+// Pre-seed Demo Passenger (with Full Admin Privileges for Recruiters)
+export const demoUser: DevUser = {
+  id: "demo-passenger-admin",
+  name: "Demo Passenger (Admin)",
+  email: "demo@busdorkar.com",
+  phone: "+8801700000000",
+  role: "ADMIN",
+};
+saveDevUser(demoUser);
 
 // Pre-seed Saif Bean passenger user
 const saifUser: DevUser = {

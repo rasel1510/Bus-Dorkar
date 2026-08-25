@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Bus, MapPin, Phone, Mail, Shield, Heart } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
@@ -56,6 +58,15 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event("open-pwa-install"))}
+                  className="hover:text-teal-700 hover:underline transition-colors text-xs font-medium text-left cursor-pointer"
+                >
+                  Install PWA App
+                </button>
+              </li>
             </ul>
           </div>
 

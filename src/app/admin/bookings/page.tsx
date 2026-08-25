@@ -21,7 +21,7 @@ const mockBookings: BookingItem[] = [
   {
     id: "b-101",
     bookingCode: "BD-20260821-X901",
-    passengerName: "Rasel Ahmed",
+    passengerName: "Tanvir Ahmed",
     operator: "Green Line Paribahan",
     routeName: "Dhaka → Chittagong",
     seats: ["A1", "A2"],

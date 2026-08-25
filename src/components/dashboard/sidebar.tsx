@@ -32,7 +32,7 @@ export const sidebarLinks = [
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
 
   const getFirstLetter = (name: string) => {
     if (!name || !name.trim()) return "U";
@@ -132,7 +132,7 @@ export function DashboardSidebar() {
 export function DashboardMobileNav() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";

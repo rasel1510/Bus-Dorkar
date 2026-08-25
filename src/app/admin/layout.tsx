@@ -140,8 +140,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {mounted && user?.name ? user.name.charAt(0).toUpperCase() : "A"}
               </div>
               <div className="truncate">
-                <p className="text-xs font-bold text-slate-900 truncate">{mounted && user?.name ? user.name : "Rasel Admin"}</p>
-                <p className="text-[10px] text-teal-700 font-mono font-semibold truncate">{mounted && user?.email ? user.email : "rasel4897981@gmail.com"}</p>
+                <p className="text-xs font-bold text-slate-900 truncate">{mounted && user?.name ? user.name : "System Administrator"}</p>
+                <p className="text-[10px] text-teal-700 font-mono font-semibold truncate">{mounted && user?.email ? user.email : "admin@busdorkar.com"}</p>
               </div>
             </div>
             <button

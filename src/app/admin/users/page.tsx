@@ -164,13 +164,13 @@ export default function AdminUsersPage() {
           <h2 className="text-sm font-extrabold text-slate-900">Instant Role Promotion Tool</h2>
         </div>
         <p className="text-xs text-slate-500 font-medium">
-          Enter any registered email address (e.g. <strong className="text-teal-700 font-mono">rasel4897981@gmail.com</strong>) to immediately assign or modify their system role.
+          Enter any registered email address (e.g. <strong className="text-teal-700 font-mono">admin@busdorkar.com</strong>) to immediately assign or modify their system role.
         </p>
 
         <form onSubmit={handleCustomPromotion} className="flex flex-col sm:flex-row items-center gap-3 pt-1">
           <Input
             type="email"
-            placeholder="Enter user email (e.g. rasel4897981@gmail.com)"
+            placeholder="Enter user email (e.g. admin@busdorkar.com)"
             value={promoteEmail}
             onChange={(e) => setPromoteEmail(e.target.value)}
             required
@@ -199,10 +199,10 @@ export default function AdminUsersPage() {
 
           <Button
             type="button"
-            onClick={() => updateUserRole("", "rasel4897981@gmail.com", "ADMIN")}
+            onClick={() => updateUserRole("", "demo@busdorkar.com", "ADMIN")}
             className="h-10 bg-teal-50 border border-teal-200 text-teal-800 hover:bg-teal-100 font-bold text-xs px-4 rounded-xl cursor-pointer shrink-0 shadow-xs"
           >
-            Make rasel4897981@gmail.com Admin
+            Verify demo@busdorkar.com Admin
           </Button>
         </form>
       </div>

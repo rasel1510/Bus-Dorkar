@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const [bookings, setBookings] = useState<BookingCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
 
   useEffect(() => {
     fetchBookings();

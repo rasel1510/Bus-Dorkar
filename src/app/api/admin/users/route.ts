@@ -59,10 +59,19 @@ export async function GET(request: Request) {
     // Add mock demonstration users if dev store is small
     const mockUsers = [
       {
-        id: "admin-rasel-001",
-        name: "Rasel Admin",
-        email: "rasel4897981@gmail.com",
+        id: "admin-system-001",
+        name: "System Administrator",
+        email: "admin@busdorkar.com",
         phone: "+8801700000001",
+        role: "ADMIN",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "demo-passenger-admin",
+        name: "Demo Passenger (Admin)",
+        email: "demo@busdorkar.com",
+        phone: "+8801700000000",
         role: "ADMIN",
         status: "ACTIVE",
         createdAt: new Date().toISOString(),

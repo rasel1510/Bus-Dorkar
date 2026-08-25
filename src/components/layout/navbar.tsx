@@ -16,6 +16,8 @@ import {
   ChevronDown,
   User,
   Shield,
+  Smartphone,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -49,7 +51,7 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "rasel4897981@gmail.com";
+  const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
 
   const getFirstLetter = (name: string) => {
     if (!name || !name.trim()) return "U";
@@ -168,6 +170,14 @@ export function Navbar() {
                   My Tickets & Bookings
                 </DropdownMenuItem>
 
+                <DropdownMenuItem
+                  onClick={() => window.dispatchEvent(new Event("open-pwa-install"))}
+                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors"
+                >
+                  <Smartphone className="h-4 w-4 text-teal-600" />
+                  Install PWA App
+                </DropdownMenuItem>
+
                 <DropdownMenuSeparator className="bg-slate-200 my-1" />
 
                 <DropdownMenuItem
@@ -278,6 +288,16 @@ export function Navbar() {
                       <Ticket className="h-5 w-5 text-teal-600" />
                       My Tickets
                     </Link>
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        window.dispatchEvent(new Event("open-pwa-install"));
+                      }}
+                      className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold text-teal-800 bg-teal-50 border border-teal-200 cursor-pointer"
+                    >
+                      <Smartphone className="h-5 w-5 text-teal-600" />
+                      Install PWA App
+                    </button>
                   </>
                 )}
               </div>

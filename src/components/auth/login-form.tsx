@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2, Sparkles, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ export function LoginForm() {
   const [loginMethod, setLoginMethod] = useState<"phone" | "email">("phone");
   const [role, setRole] = useState<"passenger" | "operator" | "staff">("passenger");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -38,6 +39,41 @@ export function LoginForm() {
       }
     }
   }, [searchParams]);
+
+  const handleDemoLogin = async () => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsDemoLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.message || data.error || "Failed to initialize demo session.");
+        setIsDemoLoading(false);
+        return;
+      }
+
+      setSuccessMsg("Signed in as Demo Passenger (Admin Enabled)! Redirecting...");
+      setIsDemoLoading(false);
+
+      if (data.user) {
+        login(data.user);
+      }
+
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 300);
+    } catch (err: any) {
+      setIsDemoLoading(false);
+      setErrorMsg(err.message || "Network error during demo sign-in.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +128,56 @@ export function LoginForm() {
           <p className="text-xs sm:text-sm font-medium text-slate-600">
             Sign in to manage your bookings & tickets
           </p>
+        </div>
+
+        {/* Recruiter / Showcase 1-Click Access Card */}
+        <div className="bg-gradient-to-br from-teal-50 via-emerald-50/70 to-teal-50 border-2 border-teal-500/30 rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-teal-600 animate-pulse" />
+                <span className="text-[11px] font-black text-teal-950 tracking-wide uppercase">
+                  Recruiter & Showcase Preview
+                </span>
+              </div>
+              <p className="text-[11px] font-medium text-slate-600 leading-snug">
+                One-click access with pre-seeded tickets, booking flows & full Admin Command HQ oversight.
+              </p>
+            </div>
+            <span className="shrink-0 bg-teal-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+              Admin Access
+            </span>
+          </div>
+
+          <Button
+            type="button"
+            id="demo-passenger-btn"
+            disabled={isDemoLoading || isLoading}
+            onClick={handleDemoLogin}
+            className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer group"
+          >
+            {isDemoLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin text-teal-400" />
+                <span>Signing In Demo Passenger...</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="h-4 w-4 text-teal-400 group-hover:scale-110 transition-transform" />
+                <span>Demo Passenger</span>
+                <ArrowRight className="h-4 w-4 text-teal-400 group-hover:translate-x-1 transition-transform ml-auto" />
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Divider */}
+        <div className="relative flex items-center justify-center">
+          <div className="border-t border-slate-200 w-full" />
+          <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+            or sign in with credentials
+          </span>
+          <div className="border-t border-slate-200 w-full" />
         </div>
 
         {/* Success Banner */}
