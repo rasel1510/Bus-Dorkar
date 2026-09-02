@@ -66,10 +66,7 @@ export function DistrictCombobox({
                   <span className="text-xs text-slate-500 font-medium">({selectedDistrict.name})</span>
                 </>
               ) : (
-                <>
-                  {selectedDistrict.name}{" "}
-                  <span className="text-xs text-slate-500 font-medium">({selectedDistrict.nameBn})</span>
-                </>
+                <span>{selectedDistrict.name}</span>
               )}
             </span>
           ) : (
@@ -98,7 +95,7 @@ export function DistrictCombobox({
                 heading={
                   language === "bn"
                     ? `${div.nameBn} বিভাগ (${div.name})`
-                    : `${div.name} Division (${div.nameBn})`
+                    : `${div.name} Division`
                 }
                 className="text-xs font-bold text-teal-700 px-2 py-1.5"
               >
@@ -123,9 +120,11 @@ export function DistrictCombobox({
                         <span className="font-bold">
                           {language === "bn" ? district.nameBn : district.name}
                         </span>
-                        <span className="text-xs text-slate-500 font-normal">
-                          {language === "bn" ? district.name : district.nameBn}
-                        </span>
+                        {language === "bn" && (
+                          <span className="text-xs text-slate-500 font-normal">
+                            {district.name}
+                          </span>
+                        )}
                       </div>
                       {value === district.id && <Check className="h-4 w-4 text-teal-600" />}
                     </CommandItem>

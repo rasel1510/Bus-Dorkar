@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2, Sparkles, ShieldCheck, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -130,24 +130,8 @@ export function LoginForm() {
           </p>
         </div>
 
-        {/* Recruiter / Showcase 1-Click Access Card */}
-        <div className="bg-gradient-to-br from-teal-50 via-emerald-50/70 to-teal-50 border-2 border-teal-500/30 rounded-2xl p-4 shadow-sm space-y-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-teal-600 animate-pulse" />
-                <span className="text-[11px] font-black text-teal-950 tracking-wide uppercase">
-                  Recruiter & Showcase Preview
-                </span>
-              </div>
-              <p className="text-[11px] font-medium text-slate-600 leading-snug">
-                One-click access with pre-seeded tickets, booking flows & full Admin Command HQ oversight.
-              </p>
-            </div>
-            <span className="shrink-0 bg-teal-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
-              Admin Access
-            </span>
-          </div>
+        {/* Demo Passenger 1-Click Access */}
+        <div className="bg-gradient-to-br from-teal-50 via-emerald-50/70 to-teal-50 border border-teal-500/30 rounded-2xl p-3 shadow-xs">
 
           <Button
             type="button"

@@ -90,7 +90,7 @@ export function RouteCard({
                 {language === "bn" ? route.fromNameBn : route.fromName}
               </span>
               <span className="text-[11px] text-slate-500 font-medium block truncate">
-                {language === "bn" ? `${route.fromName} • ${route.fromDivision}` : `${route.fromNameBn} • ${route.fromDivision}`}
+                {language === "bn" ? `${route.fromName} • ${route.fromDivision}` : `${route.fromDivision} Division`}
               </span>
             </div>
 
@@ -113,7 +113,7 @@ export function RouteCard({
                 {language === "bn" ? route.toNameBn : route.toName}
               </span>
               <span className="text-[11px] text-slate-500 font-medium block truncate">
-                {language === "bn" ? `${route.toName} • ${route.toDivision}` : `${route.toNameBn} • ${route.toDivision}`}
+                {language === "bn" ? `${route.toName} • ${route.toDivision}` : `${route.toDivision} Division`}
               </span>
             </div>
           </div>

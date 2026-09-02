@@ -377,7 +377,9 @@ export default function RoutesPage() {
                             </span>
                           </div>
                           <span className="text-[11px] text-slate-500">
-                            {language === "bn" ? `${route.fromName} → ${route.toName}` : `${route.fromNameBn} → ${route.toNameBn}`} ({route.corridorType})
+                            {language === "bn"
+                              ? `${route.fromName} → ${route.toName} (${route.corridorType})`
+                              : `${route.fromDivision} to ${route.toDivision} (${route.corridorType})`}
                           </span>
                         </td>
                         <td className="p-4 font-mono font-bold text-slate-800">

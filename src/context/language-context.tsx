@@ -29,12 +29,15 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const STORAGE_KEY = "bus_dorkar_language";
 
-// Create lookup map for district English -> Bangla names
+// Create lookup map for district English & Bangla names
 const districtMapBn: Record<string, string> = {};
+const districtMapEn: Record<string, string> = {};
 divisions.forEach((div) => {
   div.districts.forEach((d) => {
     districtMapBn[d.id.toLowerCase()] = d.nameBn;
     districtMapBn[d.name.toLowerCase()] = d.nameBn;
+    districtMapEn[d.id.toLowerCase()] = d.name;
+    districtMapEn[d.name.toLowerCase()] = d.name;
   });
 });
 
@@ -122,8 +125,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const tDistrict = useCallback(
     (districtIdOrName: string): string => {
       if (!districtIdOrName) return "";
-      if (language === "en") return districtIdOrName;
       const key = districtIdOrName.trim().toLowerCase();
+      if (language === "en") {
+        return districtMapEn[key] || districtIdOrName;
+      }
       return districtMapBn[key] || districtIdOrName;
     },
     [language]

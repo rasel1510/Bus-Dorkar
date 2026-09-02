@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/context/language-context";
 
 interface RouteDetailModalProps {
   route: BusRoute | null;
@@ -38,6 +39,8 @@ export function RouteDetailModal({
   open,
   onOpenChange,
 }: RouteDetailModalProps) {
+  const { language, t, tNum, tCurrency, tDistance, tDuration } = useLanguage();
+
   if (!route) return null;
 
   return (
@@ -61,12 +64,14 @@ export function RouteDetailModal({
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-                <span>{route.fromName}</span>
+                <span>{language === "bn" ? route.fromNameBn : route.fromName}</span>
                 <ArrowRight className="h-5 w-5 text-teal-400 shrink-0" />
-                <span>{route.toName}</span>
+                <span>{language === "bn" ? route.toNameBn : route.toName}</span>
               </h2>
               <p className="text-xs text-slate-300 font-medium mt-1">
-                {route.fromNameBn} থেকে {route.toNameBn} — {route.fromDivision} to {route.toDivision} Division
+                {language === "bn"
+                  ? `${route.fromNameBn} থেকে ${route.toNameBn} — ${route.fromDivision} থেকে ${route.toDivision} বিভাগ`
+                  : `${route.fromName} to ${route.toName} — ${route.fromDivision} to ${route.toDivision} Division`}
               </p>
             </div>
           </div>
@@ -74,20 +79,20 @@ export function RouteDetailModal({
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-slate-800 text-center font-mono">
             <div className="p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 block uppercase">Distance</span>
-              <span className="text-xs sm:text-sm font-bold text-white">{route.distanceKm} km</span>
+              <span className="text-[10px] text-slate-400 block uppercase">{t("distance")}</span>
+              <span className="text-xs sm:text-sm font-bold text-white">{tDistance(route.distanceKm)}</span>
             </div>
             <div className="p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 block uppercase">Est. Time</span>
-              <span className="text-xs sm:text-sm font-bold text-white">{route.duration}</span>
+              <span className="text-[10px] text-slate-400 block uppercase">{t("est_duration")}</span>
+              <span className="text-xs sm:text-sm font-bold text-white">{tDuration(route.duration)}</span>
             </div>
             <div className="p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 block uppercase">Daily Trips</span>
-              <span className="text-xs sm:text-sm font-bold text-teal-400">{route.dailyTrips}+</span>
+              <span className="text-[10px] text-slate-400 block uppercase">{t("daily_trips")}</span>
+              <span className="text-xs sm:text-sm font-bold text-teal-400">{tNum(route.dailyTrips)}+</span>
             </div>
             <div className="p-2 rounded-lg bg-slate-800/60 border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 block uppercase">Fare Starts</span>
-              <span className="text-xs sm:text-sm font-bold text-emerald-400">৳{route.startingFareBDT}</span>
+              <span className="text-[10px] text-slate-400 block uppercase">{t("starting_from")}</span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-400">{tCurrency(route.startingFareBDT)}</span>
             </div>
           </div>
         </div>
@@ -97,7 +102,7 @@ export function RouteDetailModal({
           {/* Route Overview Description */}
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Route Overview
+              {language === "bn" ? "রুটের বিবরণ" : "Route Overview"}
             </h3>
             <p className="text-sm text-slate-700 leading-relaxed font-normal bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
               {route.description}
@@ -108,7 +113,7 @@ export function RouteDetailModal({
           {route.keyHighlights && route.keyHighlights.length > 0 && (
             <div>
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                Key Highway Highlights & Landmarks
+                {language === "bn" ? "প্রধান হাইওয়ে হাইলাইটস ও ল্যান্ডমার্ক" : "Key Highway Highlights & Landmarks"}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {route.keyHighlights.map((highlight, idx) => (
@@ -128,10 +133,12 @@ export function RouteDetailModal({
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Intermediate Stops & Boarding Points ({route.stops.length} Stops)
+                {language === "bn"
+                  ? `যাত্রাবিরতি ও বোর্ডিং পয়েন্ট (${tNum(route.stops.length)} টি স্টপ)`
+                  : `Intermediate Stops & Boarding Points (${route.stops.length} Stops)`}
               </h3>
               <span className="text-[11px] font-mono text-slate-500">
-                Total: {route.distanceKm} km
+                {t("distance")}: {tDistance(route.distanceKm)}
               </span>
             </div>
 
@@ -166,20 +173,22 @@ export function RouteDetailModal({
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs sm:text-sm font-bold text-slate-900">
-                              {stop.name}
+                              {language === "bn" ? stop.nameBn : stop.name}
                             </span>
                             {stop.isMajorTerminal && (
                               <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-slate-100 text-slate-700 border-slate-200">
-                                Major Terminal
+                                {language === "bn" ? "প্রধান টার্মিনাল" : "Major Terminal"}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-[11px] text-slate-500 font-medium">
-                            {stop.nameBn}
-                          </p>
+                          {language === "bn" && (
+                            <p className="text-[11px] text-slate-500 font-medium">
+                              {stop.name}
+                            </p>
+                          )}
                         </div>
                         <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200 shrink-0">
-                          +{stop.kmFromOrigin} km
+                          +{tDistance(stop.kmFromOrigin)}
                         </span>
                       </div>
                     </div>
@@ -192,7 +201,9 @@ export function RouteDetailModal({
           {/* Operating Bus Companies */}
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-              Verified Operators Serving This Route ({route.operators.length})
+              {language === "bn"
+                ? `এই রুটের ভেরিফাইড অপারেটর (${tNum(route.operators.length)} টি)`
+                : `Verified Operators Serving This Route (${route.operators.length})`}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {route.operators.map((operator) => (
@@ -208,7 +219,7 @@ export function RouteDetailModal({
                       <p className="text-xs font-bold text-slate-900">{operator.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[10px] font-bold text-amber-600 flex items-center">
-                          ★ {operator.rating}
+                          ★ {tNum(operator.rating)}
                         </span>
                         <span className="text-slate-300 text-[10px]">•</span>
                         <span className="text-[10px] text-slate-500 font-medium">
@@ -226,9 +237,11 @@ export function RouteDetailModal({
         {/* Modal Footer CTA */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 rounded-b-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
-            <span className="text-xs text-slate-500 block">Fares on this corridor</span>
+            <span className="text-xs text-slate-500 block">
+              {language === "bn" ? "এই করিডোরের ভাড়া" : "Fares on this corridor"}
+            </span>
             <span className="text-sm font-extrabold text-slate-900 font-mono">
-              ৳{route.startingFareBDT} - ৳{route.maxFareBDT} / seat
+              {tCurrency(route.startingFareBDT)} - {tCurrency(route.maxFareBDT)} {language === "bn" ? "/ সিট" : "/ seat"}
             </span>
           </div>
 
@@ -238,7 +251,7 @@ export function RouteDetailModal({
               onClick={() => onOpenChange(false)}
               className="text-xs font-semibold text-slate-700 rounded-xl h-10 px-4 cursor-pointer"
             >
-              Close
+              {language === "bn" ? "বন্ধ করুন" : "Close"}
             </Button>
             <Link
               href={`/search?from=${route.fromId}&to=${route.toId}`}
@@ -246,7 +259,7 @@ export function RouteDetailModal({
             >
               <Button className="w-full sm:w-auto gradient-teal text-white font-extrabold text-xs h-10 px-5 rounded-xl shadow-md shadow-teal-600/20 hover:opacity-95 cursor-pointer flex items-center justify-center gap-1.5">
                 <Bus className="h-4 w-4" />
-                Find Buses on This Route
+                {t("view_buses")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </Link>

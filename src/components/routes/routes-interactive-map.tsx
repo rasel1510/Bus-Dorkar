@@ -7,6 +7,7 @@ import { allDistricts, majorTerminals } from "@/lib/data/districts";
 import { MapPin, Bus, Navigation, Layers, Compass, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/language-context";
 
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -44,6 +45,7 @@ export function RoutesInteractiveMap({
   selectedRoute,
   onSelectRoute,
 }: RoutesInteractiveMapProps) {
+  const { language, tDistance, tDuration } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [L, setL] = useState<any>(null);
 
@@ -183,16 +185,20 @@ export function RoutesInteractiveMap({
             <Marker
               key={district.id}
               position={[district.lat, district.lng]}
-              icon={createCustomIcon(district.name, isHighlighted)}
+              icon={createCustomIcon(language === "bn" ? district.nameBn : district.name, isHighlighted)}
             >
               <Popup>
                 <div className="p-2 space-y-1 text-slate-900">
-                  <p className="font-extrabold text-sm">{district.name} ({district.nameBn})</p>
-                  <p className="text-xs text-slate-500 font-medium">{district.division} Division Hub</p>
+                  <p className="font-extrabold text-sm">
+                    {language === "bn" ? `${district.nameBn} (${district.name})` : district.name}
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {language === "bn" ? `${district.division} বিভাগীয় হাব` : `${district.division} Division Hub`}
+                  </p>
                   <div className="pt-2">
                     <Link href={`/search?from=${district.id}&to=coxs-bazar`}>
                       <span className="text-[11px] font-bold text-teal-700 hover:underline flex items-center gap-1">
-                        Find departures from here &rarr;
+                        {language === "bn" ? "এখান থেকে বাস খুঁজুন →" : "Find departures from here →"}
                       </span>
                     </Link>
                   </div>
