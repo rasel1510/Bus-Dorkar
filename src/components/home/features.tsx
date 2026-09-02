@@ -1,60 +1,76 @@
 "use client";
 
 import { ShieldCheck, QrCode, Lock, Clock, MapPin, Building2 } from "lucide-react";
-
-const features = [
-  {
-    icon: ShieldCheck,
-    title: "100% Verified Operators",
-    description: "Every operator on Bus Dorkar undergoes trade license, fitness, and service quality verification before publishing trips.",
-    color: "text-teal-600",
-  },
-  {
-    icon: Lock,
-    title: "Concurrency-Safe Seat Lock",
-    description: "Our transactional seat engine ensures no double bookings. Your selected seat is temporarily locked while you complete payment.",
-    color: "text-emerald-600",
-  },
-  {
-    icon: QrCode,
-    title: "Digital QR Ticket & Check-in",
-    description: "No paper ticket printing required. Show your digitally signed QR code at the bus terminal for instant staff check-in.",
-    color: "text-teal-600",
-  },
-  {
-    icon: MapPin,
-    title: "Geospatial Terminal Discovery",
-    description: "Find bus counters, terminals, and boarding points across all 64 districts directly on an interactive map with directions.",
-    color: "text-emerald-600",
-  },
-  {
-    icon: Clock,
-    title: "Real-Time Timetable Engine",
-    description: "Access up-to-date departure schedules for morning, afternoon, evening, and night trips across all inter-district routes.",
-    color: "text-teal-600",
-  },
-  {
-    icon: Building2,
-    title: "Operator & Staff Portal",
-    description: "Dedicated operator management for company profile, fleet control, trip scheduling, counter staff check-in, and revenue analytics.",
-    color: "text-emerald-600",
-  },
-];
+import { useLanguage } from "@/context/language-context";
 
 export function Features() {
+  const { language, t, tNum } = useLanguage();
+
+  const features = [
+    {
+      icon: ShieldCheck,
+      titleEn: "100% Verified Operators",
+      titleBn: "১০০% ভেরিফাইড অপারেটর",
+      descEn: "Every operator on Bus Dorkar undergoes trade license, fitness, and service quality verification before publishing trips.",
+      descBn: "বাস দরকারের প্রতিটি বাস অপারেটরের ট্রেড লাইসেন্স ও কোচের গুণগত মান যাচাই করে ট্রিপ প্রকাশ করা হয়।",
+      color: "text-teal-600",
+    },
+    {
+      icon: Lock,
+      titleEn: "Concurrency-Safe Seat Lock",
+      titleBn: "নিরাপদ লাইভ সিট রিজার্ভেশন",
+      descEn: "Our transactional seat engine ensures no double bookings. Your selected seat is temporarily locked while you complete payment.",
+      descBn: "একই সিট ডাবল বুকিং হওয়া রোধ করতে স্বয়ংক্রিয় সিট লকিং সিস্টেম। পেমেন্ট চলাকালীন আপনার সিট নিরাপদ থাকে।",
+      color: "text-emerald-600",
+    },
+    {
+      icon: QrCode,
+      titleEn: "Digital QR Ticket & Check-in",
+      titleBn: "ডিজিটাল কিউআর টিকিট ও বোর্ডিং",
+      descEn: "No paper ticket printing required. Show your digitally signed QR code at the bus terminal for instant staff check-in.",
+      descBn: "কাগজের টিকিটের ঝামেলা নেই। কাউন্টারে শুধুমাত্র ডিজিটাল কিউআর কোড দেখিয়ে সরাসরি বাসে উঠুন।",
+      color: "text-teal-600",
+    },
+    {
+      icon: MapPin,
+      titleEn: "Geospatial Terminal Discovery",
+      titleBn: "মানচিত্রে কাউন্টার ও টার্মিনাল",
+      descEn: "Find bus counters, terminals, and boarding points across all 64 districts directly on an interactive map with directions.",
+      descBn: "বাংলাদেশের সকল ৬৪ জেলার বাস টার্মিনাল, কাউন্টার ও বোর্ডিং পয়েন্ট সহজে ম্যাপে খুঁজে বের করুন।",
+      color: "text-emerald-600",
+    },
+    {
+      icon: Clock,
+      titleEn: "Real-Time Timetable Engine",
+      titleBn: "রিয়েল-টাইম সময়সূচী ও ট্রিপ",
+      descEn: "Access up-to-date departure schedules for morning, afternoon, evening, and night trips across all inter-district routes.",
+      descBn: "সকল আন্তঃজেলা রুটে সকাল, দুপুর, সন্ধ্যা ও রাতের ট্রিপের সঠিক ও সর্বশেষ সময়সূচী দেখুন।",
+      color: "text-teal-600",
+    },
+    {
+      icon: Building2,
+      titleEn: "Operator & Staff Portal",
+      titleBn: "অপারেটর ও স্টাফ পোর্টাল",
+      descEn: "Dedicated operator management for company profile, fleet control, trip scheduling, counter staff check-in, and revenue analytics.",
+      descBn: "বাস কোম্পানিগুলোর জন্য বহর ব্যবস্থাপনা, সিট শিডিউল, স্টাফ লগইন এবং রাজস্ব হিসাবের আধুনিক সুবিধা।",
+      color: "text-emerald-600",
+    },
+  ];
+
   return (
     <section className="py-12 sm:py-20 bg-white relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 text-xs font-bold text-teal-700 tracking-wider uppercase">
-            Built For Bangladesh
+            {language === "bn" ? "বাংলাদেশের জন্য তৈরি" : "Built For Bangladesh"}
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Why Choose <span className="gradient-text">Bus Dorkar</span>?
+            {language === "bn" ? "কেন " : "Why Choose "}
+            <span className="gradient-text">{language === "bn" ? "বাস দরকার" : "Bus Dorkar"}</span>?
           </h2>
           <p className="text-slate-600 text-sm font-medium">
-            Designed specifically for inter-district transportation management, seat safety, and real-world Bangladesh usage.
+            {t("features_subtitle")}
           </p>
         </div>
 
@@ -69,10 +85,10 @@ export function Features() {
                 <feature.icon className={`h-6 w-6 ${feature.color}`} />
               </div>
               <h3 className="text-lg font-extrabold text-slate-900 mb-2 group-hover:text-teal-700 transition-colors">
-                {feature.title}
+                {language === "bn" ? feature.titleBn : feature.titleEn}
               </h3>
               <p className="text-slate-600 text-xs leading-relaxed font-medium">
-                {feature.description}
+                {language === "bn" ? feature.descBn : feature.descEn}
               </p>
             </div>
           ))}

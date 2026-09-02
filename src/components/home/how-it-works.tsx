@@ -1,48 +1,60 @@
 "use client";
 
 import { Search, Armchair, CreditCard, TicketCheck } from "lucide-react";
-
-const steps = [
-  {
-    step: "01",
-    icon: Search,
-    title: "Search Routes",
-    description: "Select your departure district, destination, date, and passenger count.",
-  },
-  {
-    step: "02",
-    icon: Armchair,
-    title: "Select Seats",
-    description: "Choose your preferred seats from our interactive 2+2, 2+1, or sleeper layout.",
-  },
-  {
-    step: "03",
-    icon: CreditCard,
-    title: "Instant Payment",
-    description: "Pay securely via bKash, Nagad, SSLCommerz, or choose counter payment.",
-  },
-  {
-    step: "04",
-    icon: TicketCheck,
-    title: "Digital QR Ticket",
-    description: "Receive an instant digital ticket with QR code for seamless terminal check-in.",
-  },
-];
+import { useLanguage } from "@/context/language-context";
 
 export function HowItWorks() {
+  const { language, t, tNum } = useLanguage();
+
+  const steps = [
+    {
+      step: "01",
+      icon: Search,
+      titleEn: "Search Routes",
+      titleBn: "রুট ও তারিখ নির্ধারণ",
+      descEn: "Select your departure district, destination, date, and passenger count.",
+      descBn: "আপনার যাত্রার জেলা, গন্তব্য, কাঙ্ক্ষিত তারিখ এবং যাত্রী সংখ্যা নির্বাচন করুন।",
+    },
+    {
+      step: "02",
+      icon: Armchair,
+      titleEn: "Select Seats",
+      titleBn: "সিট পছন্দ করুন",
+      descEn: "Choose your preferred seats from our interactive 2+2, 2+1, or sleeper layout.",
+      descBn: "বাসের ২+২, ২+১ বা স্লিপার সিট প্ল্যান থেকে আপনার পছন্দের সিট বেছে নিন।",
+    },
+    {
+      step: "03",
+      icon: CreditCard,
+      titleEn: "Instant Payment",
+      titleBn: "নিরাপদ পেমেন্ট",
+      descEn: "Pay securely via bKash, Nagad, Card, or choose counter cash payment.",
+      descBn: "বিকাশ, নগদ, কার্ড অথবা কাউন্টার ক্যাশের মাধ্যমে সহজে পেমেন্ট সম্পন্ন করুন।",
+    },
+    {
+      step: "04",
+      icon: TicketCheck,
+      titleEn: "Digital QR Ticket",
+      titleBn: "ডিজিটাল কিউআর টিকিট",
+      descEn: "Receive an instant digital ticket with QR code for seamless terminal check-in.",
+      descBn: "মুহূর্তেই কিউআর কোডসহ ডিজিটাল টিকিট বুঝে নিন এবং ঝামেলাহীন ভ্রমণ উপভোগ করুন।",
+    },
+  ];
+
   return (
     <section className="py-12 sm:py-20 bg-slate-50 relative border-y border-slate-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 text-xs font-bold text-teal-700 tracking-wider uppercase">
-            Simple & Fast
+            {language === "bn" ? "সহজ ও দ্রুত" : "Simple & Fast"}
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            How <span className="gradient-text">Bus Dorkar</span> Works
+            {language === "bn" ? "কীভাবে কাজ করে " : "How "}
+            <span className="gradient-text">{language === "bn" ? "বাস দরকার" : "Bus Dorkar"}</span>
           </h2>
           <p className="text-slate-600 text-sm font-medium">
-            Book your inter-district bus ticket in less than 2 minutes.
+            {language === "bn" ? "মাত্র ২ মিনিটে আপনার আন্তঃজেলা বাসের টিকিট কাটুন।" : "Book your inter-district bus ticket in less than 2 minutes."}
           </p>
         </div>
 
@@ -59,16 +71,16 @@ export function HowItWorks() {
                   <item.icon className="h-6 w-6" strokeWidth={2.2} />
                 </div>
                 <span className="text-3xl font-extrabold text-slate-300 group-hover:text-teal-600 transition-colors">
-                  {item.step}
+                  {tNum(item.step)}
                 </span>
               </div>
 
               {/* Title & Desc */}
               <h3 className="text-lg font-extrabold text-slate-900 mb-2 group-hover:text-teal-700 transition-colors">
-                {item.title}
+                {language === "bn" ? item.titleBn : item.titleEn}
               </h3>
               <p className="text-slate-600 text-xs leading-relaxed font-medium">
-                {item.description}
+                {language === "bn" ? item.descBn : item.descEn}
               </p>
             </div>
           ))}

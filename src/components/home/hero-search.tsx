@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
+import { useLanguage } from "@/context/language-context";
 
 const InteractiveMap = dynamic(
   () => import("@/components/home/interactive-map").then((mod) => mod.InteractiveMap),
@@ -24,6 +25,8 @@ const InteractiveMap = dynamic(
 
 export function HeroSearch() {
   const router = useRouter();
+  const { language, t, tNum } = useLanguage();
+
   const [fromDistrict, setFromDistrict] = useState("dhaka");
   const [toDistrict, setToDistrict] = useState("coxs-bazar");
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -54,23 +57,25 @@ export function HeroSearch() {
             {/* Bus Type Filters */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 gap-2">
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 w-full sm:w-auto">
-                <span className="text-xs font-bold text-slate-700 shrink-0 mr-0.5">Bus Type:</span>
+                <span className="text-xs font-bold text-slate-700 shrink-0 mr-0.5">
+                  {t("bus_type")}:
+                </span>
                 {[
-                  { id: "all", label: "All Buses" },
-                  { id: "ac", label: "AC Bus" },
-                  { id: "non-ac", label: "Non-AC Bus" },
-                ].map((t) => (
+                  { id: "all", label: t("all_types") },
+                  { id: "ac", label: t("ac_coach") },
+                  { id: "non-ac", label: t("non_ac") },
+                ].map((item) => (
                   <button
-                    key={t.id}
+                    key={item.id}
                     type="button"
-                    onClick={() => setBusType(t.id as any)}
+                    onClick={() => setBusType(item.id as any)}
                     className={`text-xs px-3.5 py-1.5 rounded-lg transition-all font-semibold shrink-0 cursor-pointer ${
-                      busType === t.id
+                      busType === item.id
                         ? "bg-teal-600 text-white shadow-md shadow-teal-600/20"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
-                    {t.label}
+                    {item.label}
                   </button>
                 ))}
               </div>
@@ -78,7 +83,7 @@ export function HeroSearch() {
               <div className="hidden sm:flex items-center gap-3 text-xs font-semibold text-slate-600 shrink-0">
                 <span className="flex items-center gap-1.5 text-teal-700">
                   <ShieldCheck className="h-4 w-4 text-teal-600" />
-                  Verified Inter-District Operators
+                  {language === "bn" ? "ভেরিফাইড আন্তঃজেলা অপারেটর" : "Verified Inter-District Operators"}
                 </span>
               </div>
             </div>
@@ -90,22 +95,22 @@ export function HeroSearch() {
                 <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-teal-600" />
-                    From (Departure)
+                    {language === "bn" ? "যাত্রার স্থান (From)" : "From (Departure)"}
                   </span>
-                  {/* Mobile Swap Button (visible on small screens) */}
+                  {/* Mobile Swap Button */}
                   <button
                     type="button"
                     onClick={handleSwap}
                     className="md:hidden flex items-center gap-1 text-[11px] font-bold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200"
                   >
-                    <ArrowRightLeft className="h-3 w-3" /> Swap
+                    <ArrowRightLeft className="h-3 w-3" /> {language === "bn" ? "বদলান" : "Swap"}
                   </button>
                 </label>
                 <DistrictCombobox
                   id="search-from-district"
                   value={fromDistrict}
                   onChange={setFromDistrict}
-                  placeholder="Select Origin"
+                  placeholder={t("select_from_district")}
                   disabledDistrictId={toDistrict}
                 />
               </div>
@@ -119,7 +124,7 @@ export function HeroSearch() {
                   onClick={handleSwap}
                   id="swap-districts-btn"
                   className="rounded-full bg-slate-100 border-slate-300 hover:bg-teal-50 hover:border-teal-600 text-teal-700 h-10 w-10 shrink-0 transition-all hover:rotate-180 cursor-pointer"
-                  title="Swap Origin & Destination"
+                  title={language === "bn" ? "স্থান অদলবদল করুন" : "Swap Origin & Destination"}
                 >
                   <ArrowRightLeft className="h-4 w-4" />
                 </Button>
@@ -129,13 +134,13 @@ export function HeroSearch() {
               <div className="md:col-span-4 space-y-1.5">
                 <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 text-emerald-600" />
-                  To (Destination)
+                  {language === "bn" ? "গন্তব্য স্থান (To)" : "To (Destination)"}
                 </label>
                 <DistrictCombobox
                   id="search-to-district"
                   value={toDistrict}
                   onChange={setToDistrict}
-                  placeholder="Select Destination"
+                  placeholder={t("select_to_district")}
                   disabledDistrictId={fromDistrict}
                 />
               </div>
@@ -144,7 +149,7 @@ export function HeroSearch() {
               <div className="md:col-span-3 space-y-1.5">
                 <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <CalendarIcon className="h-3.5 w-3.5 text-teal-600" />
-                  Journey Date
+                  {t("departure_date")}
                 </label>
                 <Popover>
                   <PopoverTrigger
@@ -157,7 +162,15 @@ export function HeroSearch() {
                     }
                   >
                     <CalendarIcon className="mr-2 h-4 w-4 text-teal-600 shrink-0" />
-                    {date ? format(date, "dd MMM yyyy") : <span>Pick date</span>}
+                    {date ? (
+                      <span>
+                        {language === "bn"
+                          ? tNum(format(date, "dd")) + " " + format(date, "MMM yyyy")
+                          : format(date, "dd MMM yyyy")}
+                      </span>
+                    ) : (
+                      <span>{t("departure_date")}</span>
+                    )}
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50">
                     <Calendar
@@ -178,7 +191,7 @@ export function HeroSearch() {
               <div className="sm:col-span-5 flex items-center justify-between sm:justify-start gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                 <div className="flex items-center gap-1.5">
                   <Users className="h-4 w-4 text-teal-600 ml-1 shrink-0" />
-                  <span className="text-xs font-bold text-slate-700">Passengers:</span>
+                  <span className="text-xs font-bold text-slate-700">{t("passengers")}:</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4].map((num) => (
@@ -192,7 +205,7 @@ export function HeroSearch() {
                           : "text-slate-700 hover:bg-slate-200"
                       }`}
                     >
-                      {num}
+                      {tNum(num)}
                     </button>
                   ))}
                 </div>
@@ -206,7 +219,7 @@ export function HeroSearch() {
                   className="w-full h-12 gradient-teal hover:opacity-95 text-white font-extrabold text-base rounded-xl shadow-lg shadow-teal-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                 >
                   <Search className="h-5 w-5" strokeWidth={2.5} />
-                  Search Buses
+                  {t("search_buses")}
                 </Button>
               </div>
             </div>

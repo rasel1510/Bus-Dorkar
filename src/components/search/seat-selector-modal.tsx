@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BusTrip } from "@/lib/data/buses";
 import { useAuth } from "@/context/auth-context";
+import { useLanguage } from "@/context/language-context";
 import {
   Dialog,
   DialogContent,
@@ -33,10 +34,10 @@ interface SeatSelectorModalProps {
 }
 
 const PAYMENT_METHODS = [
-  { value: "BKASH", label: "bKash", color: "bg-pink-50 border-pink-200 text-pink-700" },
-  { value: "NAGAD", label: "Nagad", color: "bg-orange-50 border-orange-200 text-orange-700" },
-  { value: "CARD", label: "Card", color: "bg-blue-50 border-blue-200 text-blue-700" },
-  { value: "COUNTER_CASH", label: "Counter", color: "bg-slate-50 border-slate-200 text-slate-700" },
+  { value: "BKASH", labelEn: "bKash", labelBn: "বিকাশ", color: "bg-pink-50 border-pink-200 text-pink-700" },
+  { value: "NAGAD", labelEn: "Nagad", labelBn: "নগদ", color: "bg-orange-50 border-orange-200 text-orange-700" },
+  { value: "CARD", labelEn: "Card", labelBn: "কার্ড", color: "bg-blue-50 border-blue-200 text-blue-700" },
+  { value: "COUNTER_CASH", labelEn: "Counter", labelBn: "কাউন্টার", color: "bg-slate-50 border-slate-200 text-slate-700" },
 ];
 
 export function SeatSelectorModal({
@@ -47,6 +48,7 @@ export function SeatSelectorModal({
 }: SeatSelectorModalProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { language, t, tNum, tCurrency, tDistrict } = useLanguage();
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [boardingPoint, setBoardingPoint] = useState<string>("");
@@ -87,6 +89,7 @@ export function SeatSelectorModal({
   );
   const availableSeatsCount = Math.max(0, trip.totalSeats - allBookedSeats.length);
 
+  // Seat rows remain standard English alphanumeric A-I as specified
   const rowLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
   const isSleeper = trip.seatLayout === "SLEEPER";
 
@@ -96,7 +99,7 @@ export function SeatSelectorModal({
       setSelectedSeats(selectedSeats.filter((s) => s !== seatId));
     } else {
       if (selectedSeats.length >= 4) {
-        setError("Maximum 4 seats allowed per booking.");
+        setError(t("modal_max_seats_error"));
         return;
       }
       setSelectedSeats([...selectedSeats, seatId]);
@@ -105,27 +108,20 @@ export function SeatSelectorModal({
   };
 
   const totalFare = selectedSeats.length * trip.fareBDT;
-  const currentBoarding = boardingPoint || trip.boardingPoints[0];
-  const currentDropping = droppingPoint || trip.droppingPoints[0];
 
   const handleConfirmBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
     if (selectedSeats.length === 0) {
-      setError("Please select at least one seat.");
+      setError(language === "bn" ? "কমপক্ষে একটি সিট নির্বাচন করুন।" : "Please select at least 1 seat.");
       return;
     }
-    if (!passengerName.trim()) {
-      setError("Please enter passenger name.");
-      return;
-    }
-    if (!passengerPhone.trim()) {
-      setError("Please enter your mobile number.");
+    if (!passengerName.trim() || !passengerPhone.trim()) {
+      setError(t("modal_name_phone_required"));
       return;
     }
 
     setIsLoading(true);
+    setError("");
 
     try {
       const res = await fetch("/api/bookings", {
@@ -133,20 +129,16 @@ export function SeatSelectorModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tripId: trip.id,
+          operatorId: trip.operatorId,
+          operatorName: trip.operatorName,
+          fromDistrict: trip.fromDistrictName,
+          toDistrict: trip.toDistrictName,
           seatIds: selectedSeats,
-          boardingPoint: currentBoarding,
-          droppingPoint: currentDropping,
           passengerName: passengerName.trim(),
           passengerPhone: passengerPhone.trim(),
           paymentMethod,
-          // Trip snapshot for dev store
-          operatorName: trip.operatorName,
-          busType: trip.busTypeLabel,
-          fromDistrict: trip.fromDistrictName,
-          toDistrict: trip.toDistrictName,
-          departureTime: trip.departureTime,
-          arrivalTime: trip.arrivalTime,
-          duration: trip.duration,
+          boardingPoint: boardingPoint || trip.boardingPoints[0],
+          droppingPoint: droppingPoint || trip.droppingPoints[0],
           travelDate: dateStr,
           farePerSeat: trip.fareBDT,
         }),
@@ -155,7 +147,7 @@ export function SeatSelectorModal({
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.error || "Booking failed. Please try again.");
+        setError(data.error || (language === "bn" ? "বুকিং সম্পন্ন হয়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।" : "Booking failed. Please try again."));
         setIsLoading(false);
         return;
       }
@@ -164,7 +156,7 @@ export function SeatSelectorModal({
       setBookingId(data.booking.id);
       setIsSuccess(true);
     } catch {
-      setError("Network error. Please check your connection and try again.");
+      setError(language === "bn" ? "নেটওয়ার্ক সমস্যা। দয়া করে সংযোগ পরীক্ষা করুন।" : "Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -203,14 +195,18 @@ export function SeatSelectorModal({
               </Badge>
             </div>
             <h3 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
-              <span>{trip.fromDistrictName}</span>
+              <span>{tDistrict(trip.fromDistrictName)}</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
-              <span>{trip.toDistrictName}</span>
+              <span>{tDistrict(trip.toDistrictName)}</span>
             </h3>
           </div>
           <div className="text-right">
-            <span className="text-[11px] text-slate-500 font-semibold block">Fare per seat</span>
-            <span className="text-lg font-extrabold text-emerald-700">৳ {trip.fareBDT}</span>
+            <span className="text-[11px] text-slate-500 font-semibold block">
+              {t("fare_per_seat")}
+            </span>
+            <span className="text-lg font-extrabold text-emerald-700">
+              {tCurrency(trip.fareBDT)}
+            </span>
           </div>
         </div>
 
@@ -222,37 +218,38 @@ export function SeatSelectorModal({
             </div>
             <div className="space-y-1">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-                <Sparkles className="h-3 w-3" /> Booking Confirmed
+                <Sparkles className="h-3 w-3" /> {t("modal_booking_success")}
               </span>
               <h3 className="text-xl font-extrabold text-slate-900">
-                Ticket Reference: {bookingRef}
+                {t("modal_ticket_ref")}: {bookingRef}
               </h3>
             </div>
 
             <div className="max-w-sm mx-auto bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-2 text-xs">
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Route:</span>
-                <strong className="text-slate-900">{trip.fromDistrictName} ➔ {trip.toDistrictName}</strong>
+                <span className="text-slate-600">{language === "bn" ? "রুট:" : "Route:"}</span>
+                <strong className="text-slate-900">{tDistrict(trip.fromDistrictName)} ➔ {tDistrict(trip.toDistrictName)}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Date:</span>
+                <span className="text-slate-600">{language === "bn" ? "তারিখ:" : "Date:"}</span>
                 <strong className="text-slate-900">{dateStr}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Seats:</span>
+                <span className="text-slate-600">{language === "bn" ? "সিট নম্বর:" : "Seats:"}</span>
+                {/* Seat plan alphanumeric codes A1, A2 remain exempted as per requirement */}
                 <strong className="text-teal-700 font-bold">{selectedSeats.join(", ")}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Passenger:</span>
+                <span className="text-slate-600">{language === "bn" ? "যাত্রী:" : "Passenger:"}</span>
                 <strong className="text-slate-900">{passengerName}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
-                <span className="text-slate-600">Payment:</span>
+                <span className="text-slate-600">{language === "bn" ? "পেমেন্ট:" : "Payment:"}</span>
                 <strong className="text-slate-900">{paymentMethod.replace("_", " ")}</strong>
               </div>
               <div className="flex justify-between pt-1">
-                <span className="text-slate-700 font-bold">Total Fare:</span>
-                <strong className="text-emerald-700 text-sm font-extrabold">৳ {totalFare}</strong>
+                <span className="text-slate-700 font-bold">{t("modal_total_fare")}:</span>
+                <strong className="text-emerald-700 text-sm font-extrabold">{tCurrency(totalFare)}</strong>
               </div>
             </div>
 
@@ -262,14 +259,14 @@ export function SeatSelectorModal({
                 className="gradient-teal text-white font-bold px-5 h-10 rounded-xl shadow-md cursor-pointer"
               >
                 <Ticket className="h-4 w-4 mr-1.5" />
-                View Ticket
+                {t("modal_view_ticket")}
               </Button>
               <Button
                 onClick={handleResetAndClose}
                 variant="outline"
                 className="font-bold px-5 h-10 rounded-xl border-slate-300 cursor-pointer"
               >
-                Close
+                {t("modal_close")}
               </Button>
             </div>
           </div>
@@ -280,10 +277,10 @@ export function SeatSelectorModal({
             <div className="md:col-span-5 p-4 sm:p-5 bg-slate-50 border-r border-slate-200 space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-800 flex items-center gap-1">
-                  <Armchair className="h-3.5 w-3.5 text-teal-600" /> Select Seat
+                  <Armchair className="h-3.5 w-3.5 text-teal-600" /> {t("modal_select_seats")}
                 </span>
                 <span className="font-semibold text-emerald-700">
-                  {availableSeatsCount} available
+                  {tNum(availableSeatsCount)} {t("modal_available")}
                 </span>
               </div>
 
@@ -291,23 +288,23 @@ export function SeatSelectorModal({
               <div className="flex items-center justify-around bg-white p-2 rounded-lg border border-slate-200 text-[11px] font-medium text-slate-600">
                 <div className="flex items-center gap-1">
                   <div className="h-3.5 w-3.5 rounded bg-white border border-slate-300"></div>
-                  <span>Available</span>
+                  <span>{t("modal_available")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="h-3.5 w-3.5 rounded bg-teal-600 text-white flex items-center justify-center text-[8px] font-bold">✓</div>
-                  <span>Selected</span>
+                  <span>{t("modal_selected")}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="h-3.5 w-3.5 rounded bg-slate-200 border border-slate-300"></div>
-                  <span>Booked</span>
+                  <span>{t("modal_booked")}</span>
                 </div>
               </div>
 
-              {/* Seats Interior Grid */}
+              {/* Seats Interior Grid - Standard English alphanumeric codes A1, A2 strictly preserved */}
               <div className="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 max-w-[240px] mx-auto shadow-sm space-y-2">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200 text-[10px] font-bold text-slate-500">
-                  <span>Front</span>
-                  <span>Driver</span>
+                  <span>{t("modal_front")}</span>
+                  <span>{t("modal_driver")}</span>
                 </div>
 
                 <div className="space-y-2">
@@ -406,10 +403,12 @@ export function SeatSelectorModal({
               <form onSubmit={handleConfirmBooking} className="space-y-3">
                 {/* Passenger Name */}
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Passenger Name *</Label>
+                  <Label className="text-xs font-bold text-slate-800">
+                    {t("modal_full_name")} *
+                  </Label>
                   <Input
                     type="text"
-                    placeholder="Enter full name"
+                    placeholder={language === "bn" ? "যাত্রীর পূর্ণ নাম লিখুন" : "Enter full name"}
                     value={passengerName}
                     onChange={(e) => setPassengerName(e.target.value)}
                     required
@@ -419,7 +418,9 @@ export function SeatSelectorModal({
 
                 {/* Mobile Number */}
                 <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-800">Mobile Number (+880) *</Label>
+                  <Label className="text-xs font-bold text-slate-800">
+                    {t("modal_phone_number")} *
+                  </Label>
                   <Input
                     type="tel"
                     placeholder="01712345678"
@@ -434,12 +435,12 @@ export function SeatSelectorModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-emerald-600" /> Boarding Point
+                      <MapPin className="h-3 w-3 text-emerald-600" /> {t("modal_boarding_point")}
                     </Label>
                     <select
                       value={boardingPoint}
                       onChange={(e) => setBoardingPoint(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600"
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600 cursor-pointer"
                     >
                       {trip.boardingPoints.map((pt, i) => (
                         <option key={i} value={pt}>{pt}</option>
@@ -448,12 +449,12 @@ export function SeatSelectorModal({
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-red-500" /> Dropping Point
+                      <MapPin className="h-3 w-3 text-red-500" /> {t("modal_dropping_point")}
                     </Label>
                     <select
                       value={droppingPoint}
                       onChange={(e) => setDroppingPoint(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600"
+                      className="w-full h-10 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:border-teal-600 cursor-pointer"
                     >
                       {trip.droppingPoints.map((pt, i) => (
                         <option key={i} value={pt}>{pt}</option>
@@ -465,7 +466,7 @@ export function SeatSelectorModal({
                 {/* Payment Method */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                    <CreditCard className="h-3 w-3 text-teal-600" /> Payment Method
+                    <CreditCard className="h-3 w-3 text-teal-600" /> {t("modal_payment_method")}
                   </Label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {PAYMENT_METHODS.map((pm) => (
@@ -479,7 +480,7 @@ export function SeatSelectorModal({
                             : pm.color + " hover:border-teal-300"
                         }`}
                       >
-                        {pm.label}
+                        {language === "bn" ? pm.labelBn : pm.labelEn}
                       </button>
                     ))}
                   </div>
@@ -488,14 +489,15 @@ export function SeatSelectorModal({
                 {/* Selection & Fare Box */}
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
                   <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>Seats ({selectedSeats.length}):</span>
-                    <strong className="text-teal-700">
-                      {selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"}
+                    <span>{t("modal_selected_seats_label")} ({tNum(selectedSeats.length)}):</span>
+                    {/* Alphanumeric seat codes A1, A2 remain intact */}
+                    <strong className="text-teal-700 font-bold">
+                      {selectedSeats.length > 0 ? selectedSeats.join(", ") : (language === "bn" ? "কোনটি নয়" : "None")}
                     </strong>
                   </div>
                   <div className="flex justify-between text-xs font-bold text-slate-900 pt-1 border-t border-slate-200">
-                    <span>Total Price:</span>
-                    <strong className="text-emerald-700 text-base font-extrabold">৳ {totalFare}</strong>
+                    <span>{t("modal_total_fare")}:</span>
+                    <strong className="text-emerald-700 text-base font-extrabold">{tCurrency(totalFare)}</strong>
                   </div>
                 </div>
 
@@ -514,15 +516,17 @@ export function SeatSelectorModal({
                   className="w-full h-11 gradient-teal hover:opacity-95 text-white font-extrabold text-sm rounded-xl shadow-md cursor-pointer disabled:opacity-40"
                 >
                   {isLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Processing Payment...</>
+                    <><Loader2 className="h-4 w-4 animate-spin mr-1.5" /> {t("modal_processing")}</>
                   ) : (
-                    <><Ticket className="h-4 w-4 mr-1" /> Confirm & Pay ৳{totalFare}</>
+                    <><Ticket className="h-4 w-4 mr-1" /> {t("modal_confirm_booking")} ({tCurrency(totalFare)})</>
                   )}
                 </Button>
 
                 {!user && (
                   <p className="text-[10px] text-center text-slate-400 font-medium">
-                    Not logged in? Your booking will still be created for demo purposes.
+                    {language === "bn"
+                      ? "লগইন না থাকলেও ডেমো বুকিং তৈরি হবে।"
+                      : "Not logged in? Your booking will still be created for demo purposes."}
                   </p>
                 )}
               </form>

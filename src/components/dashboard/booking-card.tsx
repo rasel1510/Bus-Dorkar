@@ -10,6 +10,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/context/language-context";
 
 export interface BookingCardData {
   id: string;
@@ -24,6 +25,25 @@ export interface BookingCardData {
   operatorName: string;
   paymentMethod: string;
   createdAt: string;
+}
+
+function getStatusLabel(status: string, language: "en" | "bn") {
+  if (language === "en") return status.replace("_", " ");
+  switch (status) {
+    case "CONFIRMED":
+      return "নিশ্চিত";
+    case "COMPLETED":
+      return "সম্পন্ন";
+    case "CANCELLED":
+      return "বাতিল";
+    case "PENDING":
+    case "PAYMENT_PENDING":
+      return "অপেক্ষমাণ";
+    case "EXPIRED":
+      return "মেয়াদোত্তীর্ণ";
+    default:
+      return status;
+  }
 }
 
 function getStatusStyle(status: string) {
@@ -45,6 +65,8 @@ function getStatusStyle(status: string) {
 }
 
 export function BookingCard({ booking }: { booking: BookingCardData }) {
+  const { language, tDistrict, tCurrency, tTime } = useLanguage();
+
   return (
     <Link
       href={`/dashboard/bookings/${booking.id}`}
@@ -59,15 +81,15 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
           variant="outline"
           className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getStatusStyle(booking.status)}`}
         >
-          {booking.status.replace("_", " ")}
+          {getStatusLabel(booking.status, language)}
         </Badge>
       </div>
 
       {/* Route */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-extrabold text-slate-900">{booking.fromDistrict}</span>
+        <span className="text-sm font-extrabold text-slate-900">{tDistrict(booking.fromDistrict)}</span>
         <ArrowRight className="h-3.5 w-3.5 text-teal-600" />
-        <span className="text-sm font-extrabold text-slate-900">{booking.toDistrict}</span>
+        <span className="text-sm font-extrabold text-slate-900">{tDistrict(booking.toDistrict)}</span>
       </div>
 
       {/* Details Grid */}
@@ -78,10 +100,11 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
         </div>
         <div className="flex items-center gap-1.5">
           <Clock className="h-3 w-3 text-slate-400" />
-          {booking.departureTime}
+          {tTime(booking.departureTime)}
         </div>
         <div className="flex items-center gap-1.5">
           <Armchair className="h-3 w-3 text-slate-400" />
+          {/* Alphanumeric seat codes preserved */}
           {booking.seats.join(", ")}
         </div>
         <div className="flex items-center gap-1.5">
@@ -93,7 +116,7 @@ export function BookingCard({ booking }: { booking: BookingCardData }) {
       {/* Footer: Operator + Price */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
         <span className="text-[11px] font-semibold text-slate-500">{booking.operatorName}</span>
-        <span className="text-sm font-extrabold text-emerald-700">৳ {booking.totalAmount}</span>
+        <span className="text-sm font-extrabold text-emerald-700">{tCurrency(booking.totalAmount)}</span>
       </div>
     </Link>
   );

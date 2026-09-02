@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Armchair,
 } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
 
 interface BusTripCardProps {
   trip: BusTrip;
@@ -17,6 +18,8 @@ interface BusTripCardProps {
 }
 
 export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
+  const { language, t, tNum, tCurrency, tDuration, tDistrict, tTime } = useLanguage();
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-5 shadow-sm hover:shadow-md hover:border-teal-500 transition-all">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4">
@@ -40,7 +43,7 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
                 <span>•</span>
                 <span className="flex items-center gap-0.5 text-amber-700 font-bold">
                   <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
-                  {trip.operatorRating}
+                  {tNum(trip.operatorRating)}
                 </span>
               </div>
             </div>
@@ -49,10 +52,10 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
           {/* Price badge visible on mobile top-right */}
           <div className="md:hidden text-right">
             <span className="text-base font-black text-slate-900 block">
-              ৳ {trip.fareBDT}
+              {tCurrency(trip.fareBDT)}
             </span>
             <span className="text-[10px] text-emerald-700 font-bold">
-              {trip.availableSeats} left
+              {tNum(trip.availableSeats)} {language === "bn" ? "সিট ফাঁকা" : "left"}
             </span>
           </div>
         </div>
@@ -60,13 +63,17 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
         {/* Center: Timetable (Skyss Style) */}
         <div className="flex items-center justify-between gap-2 sm:gap-3 bg-slate-50 px-3 sm:px-4 py-2.5 rounded-xl border border-slate-200">
           <div>
-            <span className="text-sm sm:text-base font-black text-slate-900">{trip.departureTime}</span>
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-600 truncate max-w-[90px] sm:max-w-none">{trip.fromDistrictName}</p>
+            <span className="text-sm sm:text-base font-black text-slate-900">
+              {tTime(trip.departureTime)}
+            </span>
+            <p className="text-[10px] sm:text-[11px] font-bold text-slate-600 truncate max-w-[90px] sm:max-w-none">
+              {tDistrict(trip.fromDistrictName)}
+            </p>
           </div>
 
           <div className="flex flex-col items-center px-1">
             <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 flex items-center gap-1">
-              <Clock className="h-3 w-3 text-teal-600" /> {trip.duration}
+              <Clock className="h-3 w-3 text-teal-600" /> {tDuration(trip.duration)}
             </span>
             <div className="w-16 xs:w-24 sm:w-32 flex items-center gap-1 my-0.5">
               <div className="h-1.5 w-1.5 rounded-full bg-teal-600 shrink-0"></div>
@@ -76,8 +83,12 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
           </div>
 
           <div className="text-right">
-            <span className="text-sm sm:text-base font-black text-slate-900">{trip.arrivalTime}</span>
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-600 truncate max-w-[90px] sm:max-w-none">{trip.toDistrictName}</p>
+            <span className="text-sm sm:text-base font-black text-slate-900">
+              {tTime(trip.arrivalTime)}
+            </span>
+            <p className="text-[10px] sm:text-[11px] font-bold text-slate-600 truncate max-w-[90px] sm:max-w-none">
+              {tDistrict(trip.toDistrictName)}
+            </p>
           </div>
         </div>
 
@@ -85,10 +96,10 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
         <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4">
           <div className="hidden md:block text-right">
             <span className="text-xs text-emerald-700 font-bold block">
-              {trip.availableSeats} seats left
+              {tNum(trip.availableSeats)} {language === "bn" ? "টি সিট ফাঁকা আছে" : "seats left"}
             </span>
             <span className="text-xl font-black text-slate-900 tracking-tight">
-              ৳ {trip.fareBDT}
+              {tCurrency(trip.fareBDT)}
             </span>
           </div>
 
@@ -98,7 +109,7 @@ export function BusTripCard({ trip, onSelectTrip }: BusTripCardProps) {
             className="w-full md:w-auto h-11 md:h-10 gradient-teal hover:opacity-95 text-white font-extrabold text-xs sm:text-xs px-4 rounded-xl shadow-sm flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
           >
             <Armchair className="h-4 w-4" />
-            Select Seats
+            {t("select_seat_btn")}
           </Button>
         </div>
       </div>

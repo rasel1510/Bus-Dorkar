@@ -444,58 +444,6 @@ export function InteractiveMap({
         isFullscreen ? "fixed inset-0 z-50 p-4 bg-white/95 backdrop-blur-xl flex flex-col justify-between" : ""
       }`}
     >
-      {/* ===== 1. LIVE ROUTE & GPS METRICS BAR ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200 shadow-md">
-        {/* Route Connection Overview */}
-        <div className="lg:col-span-7 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 sm:h-11 w-10 sm:w-11 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shrink-0">
-              <Route className="h-5 sm:h-6 w-5 sm:w-6" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-slate-900 font-extrabold text-sm sm:text-base">
-                <span>{fromDistrict.name}</span>
-                <ArrowRight className="h-4 w-4 text-teal-600 shrink-0" />
-                <span>{toDistrict.name}</span>
-                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-200 font-bold">
-                  {highwayName}
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2 font-medium">
-                <span>Road: <strong className="text-slate-900">{estimatedRoadKm} km</strong></span>
-                <span>•</span>
-                <span>Est. Time: <strong className="text-slate-900">{estHoursLow}-{estHoursHigh} Hours</strong></span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* GPS Live Location Detector Button */}
-        <div className="lg:col-span-5 flex items-center justify-between sm:justify-end gap-2 w-full pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-          <Button
-            type="button"
-            onClick={handleGetLocation}
-            disabled={locating}
-            id="detect-live-location-btn"
-            className="gradient-teal text-white font-extrabold text-xs h-11 px-3.5 rounded-xl shadow-md shadow-teal-600/20 flex-1 sm:flex-initial flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] min-w-0"
-          >
-            <LocateFixed className={`h-4 w-4 shrink-0 ${locating ? "animate-spin" : ""}`} />
-            <span className="truncate">
-              {locating ? "Locating..." : userLocation ? "Update GPS Location" : "Detect My Live GPS Location"}
-            </span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="h-11 w-11 shrink-0 p-0 rounded-xl bg-slate-100 border-slate-300 hover:bg-slate-200 text-slate-700 cursor-pointer"
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
-          >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
 
       {/* GPS Detection Result Notice */}
       {userLocation && nearestDistrict && (
@@ -550,6 +498,16 @@ export function InteractiveMap({
               {theme.name.split(" ")[0]}
             </button>
           ))}
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="h-8 w-8 shrink-0 p-0 rounded-lg bg-slate-100 border-slate-300 hover:bg-slate-200 text-slate-700 cursor-pointer ml-1"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Map"}
+          >
+            {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          </Button>
         </div>
       </div>
 

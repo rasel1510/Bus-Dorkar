@@ -1,15 +1,42 @@
 "use client";
 
 import { Bus, MapPin, Users, Building2 } from "lucide-react";
-
-const stats = [
-  { icon: Building2, value: "50+", label: "Verified Operators", color: "text-teal-600" },
-  { icon: MapPin, value: "500+", label: "Inter-District Routes", color: "text-emerald-600" },
-  { icon: Bus, value: "1,200+", label: "Daily Bus Trips", color: "text-teal-600" },
-  { icon: Users, value: "10,000+", label: "Daily Passengers", color: "text-emerald-600" },
-];
+import { useLanguage } from "@/context/language-context";
 
 export function StatsBar() {
+  const { language, t, tNum } = useLanguage();
+
+  const stats = [
+    {
+      icon: Building2,
+      value: "50+",
+      labelEn: "Verified Operators",
+      labelBn: "ভেরিফাইড অপারেটর",
+      color: "text-teal-600",
+    },
+    {
+      icon: MapPin,
+      value: "500+",
+      labelEn: "Inter-District Routes",
+      labelBn: "আন্তঃজেলা রুট",
+      color: "text-emerald-600",
+    },
+    {
+      icon: Bus,
+      value: "1,200+",
+      labelEn: "Daily Bus Trips",
+      labelBn: "দৈনিক বাস ট্রিপ",
+      color: "text-teal-600",
+    },
+    {
+      icon: Users,
+      value: "10,000+",
+      labelEn: "Daily Passengers",
+      labelBn: "দৈনিক যাত্রী সেবা",
+      color: "text-emerald-600",
+    },
+  ];
+
   return (
     <section className="relative z-20 -mt-8 mx-auto max-w-6xl px-4 sm:px-6">
       <div className="bg-white rounded-2xl p-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center border border-slate-200 shadow-xl shadow-slate-200/50">
@@ -17,10 +44,10 @@ export function StatsBar() {
           <div key={i} className="flex flex-col items-center space-y-1">
             <stat.icon className={`h-6 w-6 ${stat.color} mb-1`} />
             <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {stat.value}
+              {tNum(stat.value)}
             </span>
             <span className="text-xs sm:text-sm font-bold text-slate-600">
-              {stat.label}
+              {language === "bn" ? stat.labelBn : stat.labelEn}
             </span>
           </div>
         ))}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
+import { LanguageProvider } from "@/context/language-context";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { PWAInstallPrompt } from "@/components/pwa/install-prompt";
 
@@ -78,12 +79,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`}>
       <body className="min-h-screen bg-background font-sans antialiased text-foreground bg-white">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        {/* PWA Components — rendered outside AuthProvider so they're always visible */}
-        <OfflineBanner />
-        <PWAInstallPrompt />
+        <LanguageProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+          {/* PWA Components — rendered outside AuthProvider so they're always visible */}
+          <OfflineBanner />
+          <PWAInstallPrompt />
+        </LanguageProvider>
       </body>
     </html>
   );

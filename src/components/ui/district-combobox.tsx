@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { divisions, allDistricts, District } from "@/lib/data/districts";
+import { useLanguage } from "@/context/language-context";
 
 interface DistrictComboboxProps {
   value: string;
@@ -30,11 +31,15 @@ interface DistrictComboboxProps {
 export function DistrictCombobox({
   value,
   onChange,
-  placeholder = "Select District",
+  placeholder,
   disabledDistrictId,
   id,
 }: DistrictComboboxProps) {
   const [open, setOpen] = React.useState(false);
+  const { language } = useLanguage();
+
+  const defaultPlaceholder = language === "bn" ? "জেলা নির্বাচন করুন" : "Select District";
+  const displayPlaceholder = placeholder || defaultPlaceholder;
 
   const selectedDistrict = allDistricts.find((d) => d.id === value);
 
@@ -55,11 +60,20 @@ export function DistrictCombobox({
           <MapPin className="h-4 w-4 text-teal-600 shrink-0" />
           {selectedDistrict ? (
             <span className="truncate text-slate-900 font-bold">
-              {selectedDistrict.name}{" "}
-              <span className="text-xs text-slate-500 font-medium">({selectedDistrict.nameBn})</span>
+              {language === "bn" ? (
+                <>
+                  {selectedDistrict.nameBn}{" "}
+                  <span className="text-xs text-slate-500 font-medium">({selectedDistrict.name})</span>
+                </>
+              ) : (
+                <>
+                  {selectedDistrict.name}{" "}
+                  <span className="text-xs text-slate-500 font-medium">({selectedDistrict.nameBn})</span>
+                </>
+              )}
             </span>
           ) : (
-            <span className="text-slate-400 font-normal">{placeholder}</span>
+            <span className="text-slate-400 font-normal">{displayPlaceholder}</span>
           )}
         </div>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-slate-500" />
@@ -67,17 +81,25 @@ export function DistrictCombobox({
       <PopoverContent className="w-[calc(100vw-32px)] sm:w-[320px] max-w-sm p-0 bg-white border-slate-200 text-slate-900 shadow-2xl z-50 rounded-2xl overflow-hidden">
         <Command className="bg-white">
           <CommandInput
-            placeholder="Search district (e.g. Dhaka, Cox's Bazar)..."
+            placeholder={
+              language === "bn"
+                ? "জেলা সার্চ করুন (যেমন: ঢাকা, কক্সবাজার)..."
+                : "Search district (e.g. Dhaka, Cox's Bazar)..."
+            }
             className="h-11 border-b border-slate-200 text-slate-900 placeholder:text-slate-400 font-medium"
           />
           <CommandList className="max-h-[300px] overflow-y-auto p-1">
             <CommandEmpty className="py-6 text-center text-sm text-slate-500 font-medium">
-              No district found.
+              {language === "bn" ? "কোনো জেলা পাওয়া যায়নি।" : "No district found."}
             </CommandEmpty>
             {divisions.map((div) => (
               <CommandGroup
                 key={div.name}
-                heading={`${div.name} Division (${div.nameBn})`}
+                heading={
+                  language === "bn"
+                    ? `${div.nameBn} বিভাগ (${div.name})`
+                    : `${div.name} Division (${div.nameBn})`
+                }
                 className="text-xs font-bold text-teal-700 px-2 py-1.5"
               >
                 {div.districts.map((district) => {
@@ -98,8 +120,12 @@ export function DistrictCombobox({
                       )}
                     >
                       <div className="flex flex-col">
-                        <span>{district.name}</span>
-                        <span className="text-xs text-slate-500 font-normal">{district.nameBn}</span>
+                        <span className="font-bold">
+                          {language === "bn" ? district.nameBn : district.name}
+                        </span>
+                        <span className="text-xs text-slate-500 font-normal">
+                          {language === "bn" ? district.name : district.nameBn}
+                        </span>
                       </div>
                       {value === district.id && <Check className="h-4 w-4 text-teal-600" />}
                     </CommandItem>

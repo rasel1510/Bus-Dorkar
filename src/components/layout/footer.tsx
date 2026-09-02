@@ -3,8 +3,20 @@
 import Link from "next/link";
 import { Bus, MapPin, Phone, Mail, Shield, Heart } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { useLanguage } from "@/context/language-context";
 
 export function Footer() {
+  const { language, t, tNum } = useLanguage();
+
+  const popularRoutes = [
+    { en: "Dhaka to Cox's Bazar", bn: "ঢাকা থেকে কক্সবাজার" },
+    { en: "Dhaka to Sylhet", bn: "ঢাকা থেকে সিলেট" },
+    { en: "Dhaka to Chattogram", bn: "ঢাকা থেকে চট্টগ্রাম" },
+    { en: "Dhaka to Rajshahi", bn: "ঢাকা থেকে রাজশাহী" },
+    { en: "Dhaka to Khulna", bn: "ঢাকা থেকে খুলনা" },
+    { en: "Dhaka to Rangpur", bn: "ঢাকা থেকে রংপুর" },
+  ];
+
   return (
     <footer className="bg-slate-50 border-t border-slate-200 text-slate-600 text-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
@@ -13,27 +25,31 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-4">
             <Logo textSize="text-2xl" />
             <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
-              Bus Dorkar is Bangladesh's dedicated inter-district bus discovery, timetable, and ticketing management platform. Real-time seat reservation across all 64 districts.
+              {t("footer_desc")}
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold text-teal-700">
               <span className="flex items-center gap-1">
-                <Shield className="h-4 w-4 text-teal-600" /> 100% Verified Operators
+                <Shield className="h-4 w-4 text-teal-600" />
+                {language === "bn" ? "১০০% ভেরিফাইড অপারেটর" : "100% Verified Operators"}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-teal-600" /> Inter-District Only
+                <MapPin className="h-4 w-4 text-teal-600" />
+                {language === "bn" ? "শুধুমাত্র আন্তঃজেলা" : "Inter-District Only"}
               </span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Popular Routes</h4>
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              {t("footer_top_routes")}
+            </h4>
             <ul className="space-y-2 text-xs font-medium">
-              {["Dhaka to Cox's Bazar", "Dhaka to Sylhet", "Dhaka to Chattogram", "Dhaka to Rajshahi", "Dhaka to Khulna", "Dhaka to Rangpur"].map((route) => (
-                <li key={route}>
+              {popularRoutes.map((route) => (
+                <li key={route.en}>
                   <Link href="/search" className="hover:text-teal-700 hover:underline transition-colors">
-                    {route} Bus
+                    {language === "bn" ? route.bn : `${route.en} Bus`}
                   </Link>
                 </li>
               ))}
@@ -42,15 +58,17 @@ export function Footer() {
 
           {/* Platform */}
           <div className="space-y-3">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Platform</h4>
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              {t("footer_quick_links")}
+            </h4>
             <ul className="space-y-2 text-xs font-medium">
               {[
-                { name: "Search Buses", href: "/search" },
-                { name: "Route Map", href: "/routes" },
-                { name: "Timetable & Schedules", href: "/timetable" },
-                { name: "Verified Operators", href: "/operators" },
-                { name: "Operator Portal", href: "/operator/login" },
-                { name: "Counter Staff Check-in", href: "/counter/login" },
+                { name: t("search_buses"), href: "/search" },
+                { name: t("nav_routes"), href: "/routes" },
+                { name: t("nav_timetable"), href: "/timetable" },
+                { name: t("nav_operators"), href: "/operators" },
+                { name: language === "bn" ? "অপারেটর পোর্টাল" : "Operator Portal", href: "/operator/login" },
+                { name: language === "bn" ? "কাউন্টার স্টাফ চেক-ইন" : "Counter Staff Check-in", href: "/counter/login" },
               ].map((item) => (
                 <li key={item.name}>
                   <Link href={item.href} className="hover:text-teal-700 hover:underline transition-colors">
@@ -64,7 +82,7 @@ export function Footer() {
                   onClick={() => window.dispatchEvent(new Event("open-pwa-install"))}
                   className="hover:text-teal-700 hover:underline transition-colors text-xs font-medium text-left cursor-pointer"
                 >
-                  Install PWA App
+                  {t("nav_install_pwa")}
                 </button>
               </li>
             </ul>
@@ -72,19 +90,21 @@ export function Footer() {
 
           {/* Contact & Support */}
           <div className="space-y-3">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Contact & Support</h4>
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">
+              {t("footer_support")}
+            </h4>
             <ul className="space-y-2.5 text-xs font-medium">
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-teal-600 shrink-0" />
-                <span>24/7 Helpline: +880 9612-000111</span>
+                <span>{t("footer_hotline")}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-teal-600 shrink-0" />
-                <span>support@busdorkar.com.bd</span>
+                <span>{t("footer_email")}</span>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-3.5 w-3.5 text-teal-600 shrink-0" />
-                <span>Gabtoli & Sayedabad Counter Hubs, Dhaka</span>
+                <span>{t("footer_address")}</span>
               </li>
             </ul>
           </div>
@@ -92,11 +112,11 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4">
-          <p>© 2026 Bus Dorkar. All rights reserved. Inter-District Bus Transportation Platform Bangladesh.</p>
+          <p>© {tNum(2026)} {language === "bn" ? "বাস দরকার। সর্বস্বত্ব সংরক্ষিত।" : "Bus Dorkar. All rights reserved."}</p>
           <div className="flex items-center gap-1 text-slate-600">
-            <span>Made with</span>
+            <span>{language === "bn" ? "তৈরি হয়েছে" : "Made with"}</span>
             <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" />
-            <span>for Bangladesh 🇧🇩</span>
+            <span>{language === "bn" ? "বাংলাদেশের জন্য 🇧🇩" : "for Bangladesh 🇧🇩"}</span>
           </div>
         </div>
       </div>

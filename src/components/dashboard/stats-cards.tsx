@@ -1,6 +1,7 @@
 "use client";
 
 import { Ticket, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
 
 interface StatsCardsProps {
   totalBookings: number;
@@ -10,9 +11,12 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ totalBookings, upcomingTrips, completedTrips, cancelledTrips }: StatsCardsProps) {
+  const { language, tNum } = useLanguage();
+
   const stats = [
     {
-      label: "Total Bookings",
+      labelEn: "Total Bookings",
+      labelBn: "মোট বুকিং",
       value: totalBookings,
       icon: Ticket,
       iconBg: "bg-teal-50",
@@ -20,7 +24,8 @@ export function StatsCards({ totalBookings, upcomingTrips, completedTrips, cance
       borderColor: "border-teal-200",
     },
     {
-      label: "Upcoming Trips",
+      labelEn: "Upcoming Trips",
+      labelBn: "আসন্ন ভ্রমণ",
       value: upcomingTrips,
       icon: Clock,
       iconBg: "bg-blue-50",
@@ -28,7 +33,8 @@ export function StatsCards({ totalBookings, upcomingTrips, completedTrips, cance
       borderColor: "border-blue-200",
     },
     {
-      label: "Completed",
+      labelEn: "Completed",
+      labelBn: "সম্পন্ন",
       value: completedTrips,
       icon: CheckCircle2,
       iconBg: "bg-emerald-50",
@@ -36,7 +42,8 @@ export function StatsCards({ totalBookings, upcomingTrips, completedTrips, cance
       borderColor: "border-emerald-200",
     },
     {
-      label: "Cancelled",
+      labelEn: "Cancelled",
+      labelBn: "বাতিলকৃত",
       value: cancelledTrips,
       icon: XCircle,
       iconBg: "bg-red-50",
@@ -47,17 +54,19 @@ export function StatsCards({ totalBookings, upcomingTrips, completedTrips, cance
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {stats.map((stat) => (
+      {stats.map((stat, i) => (
         <div
-          key={stat.label}
+          key={i}
           className={`bg-white rounded-2xl border ${stat.borderColor} p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow`}
         >
           <div className={`h-10 w-10 ${stat.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
             <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
           </div>
           <div>
-            <p className="text-2xl font-extrabold text-slate-900">{stat.value}</p>
-            <p className="text-[11px] font-semibold text-slate-500">{stat.label}</p>
+            <p className="text-2xl font-extrabold text-slate-900">{tNum(stat.value)}</p>
+            <p className="text-[11px] font-semibold text-slate-500">
+              {language === "bn" ? stat.labelBn : stat.labelEn}
+            </p>
           </div>
         </div>
       ))}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { useLanguage } from "@/context/language-context";
 import {
   LayoutDashboard,
   Ticket,
@@ -19,20 +20,21 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-export const sidebarLinks = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/bookings", label: "My Bookings", icon: Ticket },
-  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
-  { href: "/dashboard/saved", label: "Saved Items", icon: Bookmark },
-  { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
-  { href: "/dashboard/security", label: "Security", icon: Lock },
-];
-
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { language, t } = useLanguage();
   const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
+
+  const sidebarLinks = [
+    { href: "/dashboard", labelEn: "Overview", labelBn: "ওভারভিউ", icon: LayoutDashboard },
+    { href: "/dashboard/bookings", labelEn: "My Bookings", labelBn: "আমার বুকিং", icon: Ticket },
+    { href: "/dashboard/notifications", labelEn: "Notifications", labelBn: "নোটিফিকেশন", icon: Bell },
+    { href: "/dashboard/saved", labelEn: "Saved Items", labelBn: "সংরক্ষিত", icon: Bookmark },
+    { href: "/dashboard/payments", labelEn: "Payments", labelBn: "পেমেন্ট হিস্ট্রি", icon: CreditCard },
+    { href: "/dashboard/profile", labelEn: "Profile", labelBn: "প্রোফাইল", icon: User },
+    { href: "/dashboard/security", labelEn: "Security", labelBn: "নিরাপত্তা", icon: Lock },
+  ];
 
   const getFirstLetter = (name: string) => {
     if (!name || !name.trim()) return "U";
@@ -46,7 +48,6 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-white border-r border-slate-200/80 min-h-[calc(100vh-64px)]">
-
       {/* User Card */}
       {user && (
         <div className="px-4 pt-4">
@@ -87,7 +88,7 @@ export function DashboardSidebar() {
       {/* Navigation Links */}
       <nav className="flex-1 px-3 pt-4 pb-3 space-y-0.5 overflow-y-auto">
         <div className="px-3 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          Menu
+          {language === "bn" ? "মেনু" : "Menu"}
         </div>
         {sidebarLinks.map((link) => {
           const active = isActive(link.href);
@@ -106,7 +107,9 @@ export function DashboardSidebar() {
                   active ? "text-teal-600" : "text-slate-400 group-hover:text-teal-600"
                 } transition-colors`}
               />
-              <span className="flex-1 truncate">{link.label}</span>
+              <span className="flex-1 truncate">
+                {language === "bn" ? link.labelBn : link.labelEn}
+              </span>
               {active && <ChevronRight className="h-3.5 w-3.5 text-teal-500 shrink-0" />}
             </Link>
           );
@@ -120,7 +123,7 @@ export function DashboardSidebar() {
           className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-teal-700 hover:bg-teal-50/50 transition-all group"
         >
           <Home className="h-4 w-4 text-slate-400 group-hover:text-teal-600 transition-colors shrink-0" />
-          <span className="flex-1">Back to Homepage</span>
+          <span className="flex-1">{language === "bn" ? "হোমপেজে ফিরে যান" : "Back to Homepage"}</span>
           <ExternalLink className="h-3 w-3 text-slate-300 group-hover:text-teal-500 transition-colors shrink-0" />
         </Link>
       </div>
@@ -132,6 +135,7 @@ export function DashboardSidebar() {
 export function DashboardMobileNav() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const isAdmin = user?.role === "ADMIN" || user?.email?.toLowerCase() === "admin@busdorkar.com" || user?.email?.toLowerCase() === "demo@busdorkar.com";
 
   const isActive = (href: string) => {
@@ -140,11 +144,11 @@ export function DashboardMobileNav() {
   };
 
   const mobileNavLinks = [
-    { href: "/dashboard", label: "Home", icon: LayoutDashboard },
-    ...(isAdmin ? [{ href: "/admin/dashboard", label: "Admin", icon: Shield }] : []),
-    { href: "/dashboard/bookings", label: "Tickets", icon: Ticket },
-    { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
-    { href: "/dashboard/profile", label: "Profile", icon: User },
+    { href: "/dashboard", labelEn: "Home", labelBn: "হোম", icon: LayoutDashboard },
+    ...(isAdmin ? [{ href: "/admin/dashboard", labelEn: "Admin", labelBn: "অ্যাডমিন", icon: Shield }] : []),
+    { href: "/dashboard/bookings", labelEn: "Tickets", labelBn: "টিকিট", icon: Ticket },
+    { href: "/dashboard/notifications", labelEn: "Alerts", labelBn: "অ্যালার্ট", icon: Bell },
+    { href: "/dashboard/profile", labelEn: "Profile", labelBn: "প্রোফাইল", icon: User },
   ];
 
   return (
@@ -163,7 +167,7 @@ export function DashboardMobileNav() {
               <div className={`p-1 rounded-lg ${active ? "bg-teal-50" : ""}`}>
                 <link.icon className={`h-5 w-5 ${active ? "text-teal-600" : "text-slate-400"}`} />
               </div>
-              {link.label}
+              {language === "bn" ? link.labelBn : link.labelEn}
             </Link>
           );
         })}

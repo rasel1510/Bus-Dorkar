@@ -21,9 +21,11 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
+import { useLanguage } from "@/context/language-context";
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
+  const { language, t, tNum, tDistrict } = useLanguage();
 
   const initialFrom = searchParams.get("from") || "dhaka";
   const initialTo = searchParams.get("to") || "coxs-bazar";
@@ -117,7 +119,7 @@ function SearchResultsContent() {
                   <DistrictCombobox
                     value={fromDistrictId}
                     onChange={setFromDistrictId}
-                    placeholder="From"
+                    placeholder={t("select_from_district")}
                     disabledDistrictId={toDistrictId}
                   />
                 </div>
@@ -127,7 +129,7 @@ function SearchResultsContent() {
                   size="icon"
                   onClick={handleSwap}
                   className="rounded-lg bg-slate-50 border-slate-300 text-teal-700 h-10 w-10 shrink-0 cursor-pointer my-0.5 sm:my-0"
-                  title="Swap Origin & Destination"
+                  title={language === "bn" ? "স্থান অদলবদল করুন" : "Swap Origin & Destination"}
                 >
                   <ArrowRightLeft className="h-3.5 w-3.5" />
                 </Button>
@@ -135,7 +137,7 @@ function SearchResultsContent() {
                   <DistrictCombobox
                     value={toDistrictId}
                     onChange={setToDistrictId}
-                    placeholder="To"
+                    placeholder={t("select_to_district")}
                     disabledDistrictId={fromDistrictId}
                   />
                 </div>
@@ -152,7 +154,15 @@ function SearchResultsContent() {
                     }
                   >
                     <CalendarIcon className="mr-2 h-3.5 w-3.5 text-teal-600" />
-                    {date ? format(date, "dd MMM yyyy") : <span>Pick date</span>}
+                    {date ? (
+                      <span>
+                        {language === "bn"
+                          ? tNum(format(date, "dd")) + " " + format(date, "MMM yyyy")
+                          : format(date, "dd MMM yyyy")}
+                      </span>
+                    ) : (
+                      <span>{t("departure_date")}</span>
+                    )}
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-white border-slate-200 text-slate-900 shadow-xl z-50">
                     <Calendar
@@ -171,15 +181,21 @@ function SearchResultsContent() {
 
         {/* MAIN RESULTS AREA */}
         <div className="mx-auto max-w-6xl px-4 sm:px-6 mt-6 space-y-4">
-          {/* Simple Route Title */}
+          {/* Route Title */}
           <div className="flex items-center justify-between pt-1">
             <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
-              <span>{fromDistrict.name}</span>
+              <span>{tDistrict(fromDistrict.name)}</span>
               <ArrowRight className="h-4 w-4 text-teal-600" />
-              <span>{toDistrict.name}</span>
+              <span>{tDistrict(toDistrict.name)}</span>
             </h1>
             <span className="text-xs font-semibold text-slate-500">
-              {date ? format(date, "EEEE, dd MMMM yyyy") : "Today"}
+              {date ? (
+                language === "bn"
+                  ? `${tNum(format(date, "dd"))} ${format(date, "MMMM yyyy")}`
+                  : format(date, "EEEE, dd MMMM yyyy")
+              ) : (
+                t("today")
+              )}
             </span>
           </div>
 
@@ -201,8 +217,11 @@ function SearchResultsContent() {
             <div className="bg-white rounded-xl p-8 text-center border border-slate-200 shadow-sm space-y-2">
               <Info className="h-6 w-6 text-slate-400 mx-auto" />
               <h3 className="text-sm font-bold text-slate-900">
-                No buses found matching your active filters
+                {t("no_buses_found")}
               </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                {t("try_adjusting_filters")}
+              </p>
               <Button
                 onClick={() => {
                   setTimeFilter("all");
@@ -211,7 +230,7 @@ function SearchResultsContent() {
                 }}
                 className="gradient-teal text-white font-bold text-xs px-4 h-9 rounded-lg shadow-sm cursor-pointer mt-1"
               >
-                Clear Filters
+                {t("filter_reset")}
               </Button>
             </div>
           ) : (
