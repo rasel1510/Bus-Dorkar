@@ -186,6 +186,24 @@ export const translations = {
     travel_date: "Travel Date",
     journey: "Journey",
 
+    // Operators Section
+    operators_page_title: "Verified Bus Operators in Bangladesh",
+    operators_page_subtitle: "Explore licensed coach operators, compare fleet luxury, amenities, counters, and book verified seats.",
+    filter_all_operators: "All Operators",
+    filter_luxury_scania: "Scania Multi-Axle",
+    filter_volvo_exec: "Volvo Executive",
+    filter_sleeper: "Luxury Sleeper",
+    filter_non_ac: "Deluxe Non-AC",
+    view_operator_profile: "View Profile",
+    fleet_size: "Fleet Size",
+    active_routes: "Active Routes",
+    total_counters: "Counters",
+    on_time_punctuality: "On-Time Rate",
+    safety_rating: "Safety Index",
+    refund_policy: "Refund Policy",
+    customer_reviews: "Customer Reviews",
+    partner_with_us: "Register Your Fleet",
+
     // Footer
     footer_desc: "Bus Dorkar is Bangladesh's premier unified inter-district bus ticketing and transport platform, connecting all 64 districts with verified coaches.",
     footer_quick_links: "Quick Navigation",
@@ -379,6 +397,24 @@ export const translations = {
     booking_date: "বুকিংয়ের তারিখ",
     travel_date: "যাত্রার তারিখ",
     journey: "ভ্রমণ",
+
+    // Operators Section
+    operators_page_title: "বাংলাদেশের ভেরিফাইড বাস অপারেটরস",
+    operators_page_subtitle: "অনুমোদিত বাস অপারেটরদের তথ্য জানুন, বহর, সুবিধা ও টার্মিনাল তুলনা করুন এবং নিশ্চিত টিকিট কাটুন।",
+    filter_all_operators: "সকল অপারেটর",
+    filter_luxury_scania: "স্ক্যানিয়া মাল্টি-অ্যাক্সেল",
+    filter_volvo_exec: "ভলভো এক্সিকিউটিভ",
+    filter_sleeper: "লাক্সারি স্লিপার",
+    filter_non_ac: "ডিলাক্স নন-এসি",
+    view_operator_profile: "প্রোফাইল দেখুন",
+    fleet_size: "বাস বহর",
+    active_routes: "সক্রিয় রুট",
+    total_counters: "কাউন্টার",
+    on_time_punctuality: "সময়নিষ্ঠতা",
+    safety_rating: "নিরাপত্তা সূচক",
+    refund_policy: "রিফান্ড নীতি",
+    customer_reviews: "যাত্রীদের মতামত",
+    partner_with_us: "আপনার বাস বহর যুক্ত করুন",
 
     // Footer
     footer_desc: "বাস দরকার বাংলাদেশের শীর্ষস্থানীয় সমন্বিত আন্তঃজেলা বাস টিকিটিং ও পরিবহন সেবা প্ল্যাটফর্ম, যা সকল ৬৪ জেলাকে সংযুক্ত করেছে।",
