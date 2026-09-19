@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useRef, useSyncExternalStore } from "react";
 import { Download, X, Share, CheckCircle, ChevronRight, HelpCircle, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +13,37 @@ interface BeforeInstallPromptEvent extends Event {
 
 const LOCAL_STORAGE_DISMISSED_KEY = "busdorkar_pwa_dismissed";
 
+function checkIsDismissed(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    if ((window as unknown as { __busdorkar_pwa_dismissed?: boolean }).__busdorkar_pwa_dismissed) {
+      return true;
+    }
+    if (localStorage.getItem(LOCAL_STORAGE_DISMISSED_KEY) === "true") return true;
+    if (sessionStorage.getItem(LOCAL_STORAGE_DISMISSED_KEY) === "true") return true;
+    if (sessionStorage.getItem("busdorkar_pwa_prompt_dismissed") === "true") return true;
+    if (document.cookie.split(";").some((item) => item.trim().startsWith(`${LOCAL_STORAGE_DISMISSED_KEY}=true`))) {
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
+function markAsDismissed() {
+  if (typeof window === "undefined") return;
+  try {
+    (window as unknown as { __busdorkar_pwa_dismissed?: boolean }).__busdorkar_pwa_dismissed = true;
+    localStorage.setItem(LOCAL_STORAGE_DISMISSED_KEY, "true");
+    sessionStorage.setItem(LOCAL_STORAGE_DISMISSED_KEY, "true");
+    sessionStorage.setItem("busdorkar_pwa_prompt_dismissed", "true");
+    document.cookie = `${LOCAL_STORAGE_DISMISSED_KEY}=true; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {
+    // ignore
+  }
+}
+
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -21,6 +52,7 @@ export function PWAInstallPrompt() {
   const [isDismissed, setIsDismissed] = useState(true);
   const [showGuide, setShowGuide] = useState(false);
   const [installedSuccess, setInstalledSuccess] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
@@ -63,27 +95,30 @@ export function PWAInstallPrompt() {
     };
     window.addEventListener("open-pwa-install", handleCustomOpen);
 
-    // 6. Check if user already dismissed permanently in localStorage
-    let wasDismissed = false;
-    try {
-      wasDismissed =
-        localStorage.getItem(LOCAL_STORAGE_DISMISSED_KEY) === "true" ||
-        sessionStorage.getItem("busdorkar_pwa_prompt_dismissed") === "true";
-    } catch {
-      wasDismissed = false;
+    // 6. Check if user already dismissed permanently
+    if (checkIsDismissed()) {
+      setIsDismissed(true);
+      setIsVisible(false);
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        window.removeEventListener("open-pwa-install", handleCustomOpen);
+      };
     }
-    setIsDismissed(wasDismissed);
+
+    setIsDismissed(false);
 
     // Show prompt only if user has never dismissed it and not running standalone
-    let timer: NodeJS.Timeout | undefined;
-    if (!wasDismissed && !standalone) {
-      timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
+      if (!checkIsDismissed()) {
         setIsVisible(true);
-      }, 1500);
-    }
+      }
+    }, 1500);
 
     return () => {
-      if (timer) clearTimeout(timer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("open-pwa-install", handleCustomOpen);
     };
@@ -96,9 +131,7 @@ export function PWAInstallPrompt() {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
           setInstalledSuccess(true);
-          try {
-            localStorage.setItem(LOCAL_STORAGE_DISMISSED_KEY, "true");
-          } catch {}
+          markAsDismissed();
           setIsDismissed(true);
           setTimeout(() => {
             setIsVisible(false);
@@ -114,16 +147,16 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    markAsDismissed();
     setIsVisible(false);
     setIsDismissed(true);
-    try {
-      localStorage.setItem(LOCAL_STORAGE_DISMISSED_KEY, "true");
-    } catch (err) {
-      console.error("Failed to save dismissal to localStorage", err);
-    }
   };
 
-  if (!mounted || isStandalone || !isVisible) {
+  if (!mounted || isStandalone || isDismissed || !isVisible) {
     return null;
   }
 
@@ -162,12 +195,19 @@ export function PWAInstallPrompt() {
 
             {/* Close Button */}
             <button
-              onClick={handleDismiss}
+              type="button"
+              id="pwa-close-btn"
+              data-testid="pwa-close-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDismiss();
+              }}
               aria-label="Close install prompt"
               title="Close"
-              className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer shrink-0 z-20"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5 pointer-events-none" />
             </button>
           </div>
 
@@ -210,8 +250,13 @@ export function PWAInstallPrompt() {
             </Button>
 
             <Button
+              type="button"
               variant="outline"
-              onClick={handleDismiss}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDismiss();
+              }}
               className="h-9.5 text-xs font-bold text-slate-600 hover:text-slate-900 border-slate-200 rounded-xl px-3 cursor-pointer"
             >
               Later
